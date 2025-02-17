@@ -1,0 +1,444 @@
+{
+    "recipes": [
+        {
+            "id": "1",
+            "name": "Yellow Smoothie",
+            "type": "smoothie",
+            "meal_time": "breakfast",
+            "tags": ["energizing", "anti-inflammatory"],
+            "ingredients": [
+                { "name": "Fresh Ginger", "quantity": "1 inch piece", "category": "spices" },
+                { "name": "Mango", "quantity": "1/2", "category": "fruits" },
+                { "name": "Homemade Coconut Milk", "quantity": "1 cup", "category": "dairy-alternative" },
+                { "name": "Almonds", "quantity": "6", "category": "nuts" },
+                { "name": "Cucumber", "quantity": "1/4", "category": "vegetables" },
+                { "name": "Turmeric", "quantity": "1/4 tsp", "category": "spices" },
+                { "name": "Mint Leaves", "quantity": "4", "category": "herbs" }
+            ],
+            "instructions": ["Blend all ingredients until smooth"],
+            "servings": 1
+        },
+        {
+            "id": "2",
+            "name": "Pink Smoothie",
+            "type": "smoothie",
+            "meal_time": "breakfast",
+            "tags": ["antioxidant", "protein-rich"],
+            "ingredients": [
+                { "name": "Blackberries", "quantity": "1/2 cup", "category": "fruits" },
+                { "name": "Avocado", "quantity": "1/2", "category": "fruits" },
+                { "name": "Acai Powder", "quantity": "1/2 tsp", "category": "superfood" },
+                { "name": "Cashews", "quantity": "7", "category": "nuts" },
+                { "name": "Blueberries", "quantity": "1/2 cup", "category": "fruits" },
+                { "name": "Homemade Coconut/Almond Milk", "quantity": "1 cup", "category": "dairy-alternative" },
+                { "name": "Dates", "quantity": "4", "category": "fruits" },
+                { "name": "Cucumber", "quantity": "1/4", "category": "vegetables" }
+            ],
+            "instructions": ["Blend all ingredients until smooth"],
+            "servings": 1
+        },
+        {
+            "id": "3",
+            "name": "Green Smoothie",
+            "type": "smoothie",
+            "meal_time": "breakfast",
+            "tags": ["detox", "superfood", "high-protein"],
+            "ingredients": [
+                { "name": "Avocado", "quantity": "1/2", "category": "fruits" },
+                { "name": "Kale", "quantity": "1 cup", "category": "vegetables" },
+                { "name": "Spinach", "quantity": "1 cup", "category": "vegetables" },
+                { "name": "Celery", "quantity": "1 stalk", "category": "vegetables" },
+                { "name": "Sunflower Seeds", "quantity": "2 tbsp", "category": "seeds" },
+                { "name": "Coconut Extract", "quantity": "2 tbsp", "category": "dairy-alternative" },
+                { "name": "Dates", "quantity": "4", "category": "fruits" },
+                { "name": "Kiwi", "quantity": "1", "category": "fruits" },
+                { "name": "Mint", "quantity": "6 leaves", "category": "herbs" },
+                { "name": "Moringa", "quantity": "1 tsp", "category": "superfood" }
+            ],
+            "instructions": ["Blend all ingredients until smooth"],
+            "servings": 1
+        },
+        {
+            "id": "4",
+            "name": "Lentil Burgers",
+            "type": "main",
+            "meal_time": "lunch",
+            "tags": ["vegetarian", "high-protein", "meal-prep"],
+            "ingredients": [
+                { "name": "Lentils", "quantity": "1/2 cup", "category": "legumes" },
+                { "name": "Quinoa", "quantity": "1/2 cup", "category": "grains" },
+                { "name": "Onion", "quantity": "1/4 cup", "category": "vegetables" },
+                { "name": "Garlic", "quantity": "1/2 clove", "category": "vegetables" },
+                { "name": "Bell Pepper", "quantity": "1/4", "category": "vegetables" },
+                { "name": "Parsley/Cilantro", "quantity": "1 bunch", "category": "herbs" },
+                { "name": "Sago Flour", "quantity": "1/4 cup", "category": "flour" },
+                { "name": "Rice Flour", "quantity": "1/4 cup", "category": "flour" },
+                { "name": "Cumin", "quantity": "1/4 tsp", "category": "spices" },
+                { "name": "Sesame Seeds", "quantity": "3 tbsp", "category": "seeds" }
+            ],
+            "instructions": [
+                "Cook quinoa (1:2 ratio with water)",
+                "Cook lentils with vegetables until al dente",
+                "Process lentils and vegetables",
+                "Mix with quinoa, cumin, sesame seeds",
+                "Add flours gradually",
+                "Form patties"
+            ],
+            "servings": 4
+        },
+        {
+            "id": "5",
+            "name": "Salmon Bowl with Wild Rice",
+            "type": "main",
+            "meal_time": "lunch",
+            "tags": ["high-protein", "omega-3", "superfood"],
+            "ingredients": [
+                { "name": "Salmon", "quantity": "170g", "category": "protein" },
+                { "name": "Wild/Black Rice", "quantity": "1 cup", "category": "grains" },
+                { "name": "Mushrooms", "quantity": "1/2 cup", "category": "vegetables" },
+                { "name": "Asparagus", "quantity": "6 spears", "category": "vegetables" },
+                { "name": "Green Plantain", "quantity": "1/4", "category": "vegetables" },
+                { "name": "Sea Salt", "quantity": "1/2 tsp", "category": "seasonings" },
+                { "name": "Sesame Oil", "quantity": "2 tbsp", "category": "oils" },
+                { "name": "Black Pepper", "quantity": "1/4 tsp", "category": "spices" },
+                { "name": "Macadamia Nuts", "quantity": "2 tbsp", "category": "nuts" },
+                { "name": "Microgreens", "quantity": "1/4 cup", "category": "vegetables" },
+                { "name": "Cauliflower", "quantity": "1 cup", "category": "vegetables" },
+                { "name": "Avocado", "quantity": "1/2", "category": "fruits" }
+            ],
+            "instructions": [
+                "Cook wild rice according to package instructions",
+                "Season and cook salmon",
+                "Prepare vegetables",
+                "Assemble bowl with rice as base",
+                "Top with salmon and vegetables",
+                "Garnish with microgreens and macadamia nuts"
+            ],
+            "servings": 1
+        },
+        {
+            "id": "6",
+            "name": "Vegetable Cream Soup",
+            "type": "soup",
+            "meal_time": "dinner",
+            "tags": ["light", "vegetarian", "detox"],
+            "ingredients": [
+                { "name": "Yellow Zucchini", "quantity": "1/2 medium", "category": "vegetables" },
+                { "name": "Carrot", "quantity": "1 medium", "category": "vegetables" },
+                { "name": "White Onion", "quantity": "1/4 large", "category": "vegetables" },
+                { "name": "Green Zucchini", "quantity": "1/2 medium", "category": "vegetables" },
+                { "name": "Chayote", "quantity": "1/2", "category": "vegetables" },
+                { "name": "Pumpkin", "quantity": "1 cup", "category": "vegetables" },
+                { "name": "Salt", "quantity": "1/2 tsp", "category": "seasonings" },
+                { "name": "Turmeric", "quantity": "1/4 tsp", "category": "spices" },
+                { "name": "Olive Oil", "quantity": "1 tbsp", "category": "oils" }
+            ],
+            "instructions": [
+                "Preheat the pot",
+                "Add a little oil and ingredients cut in mirepoix (cubes)",
+                "Seal for approximately 2 minutes",
+                "Add water and cook for 20 minutes",
+                "Blend until smooth"
+            ],
+            "servings": 4
+        },
+        {
+            "id": "7",
+            "name": "Bone Broth",
+            "type": "soup",
+            "meal_time": "dinner",
+            "tags": ["healing", "protein-rich", "gut-health"],
+            "ingredients": [
+                { "name": "Whole Chicken", "quantity": "2kg", "category": "protein" },
+                { "name": "Chicken Feet", "quantity": "500g", "category": "protein" },
+                { "name": "Carrots", "quantity": "2", "category": "vegetables" },
+                { "name": "Celery", "quantity": "3 stalks", "category": "vegetables" },
+                { "name": "Large Onion", "quantity": "1", "category": "vegetables" },
+                { "name": "White/Apple Vinegar", "quantity": "1/2 cup", "category": "condiments" },
+                { "name": "Parsley", "quantity": "1/2 cup", "category": "herbs" },
+                { "name": "Water", "quantity": "4L", "category": "liquid" }
+            ],
+            "instructions": [
+                "Combine all ingredients in a large pot",
+                "Bring to a boil then reduce to simmer",
+                "Cook for several hours until rich broth forms",
+                "Strain and serve"
+            ],
+            "servings": 4
+        },
+        {
+            "id": "8",
+            "name": "Caramelized Chicken and Macadamia with Green Quinoa",
+            "type": "main",
+            "meal_time": "lunch",
+            "tags": ["high-protein", "superfood"],
+            "ingredients": [
+                { "name": "Chicken Breast", "quantity": "170g", "category": "protein" },
+                { "name": "Quinoa", "quantity": "1 cup", "category": "grains" },
+                { "name": "Celery", "quantity": "1 stalk", "category": "vegetables" },
+                { "name": "Green Apple", "quantity": "1", "category": "fruits" },
+                { "name": "Powdered Panela", "quantity": "1 tbsp", "category": "sweeteners" },
+                { "name": "White Onion", "quantity": "1/4 large", "category": "vegetables" },
+                { "name": "Macadamia", "quantity": "2 tbsp", "category": "nuts" },
+                { "name": "Soy Sauce", "quantity": "1 tbsp", "category": "condiments" },
+                { "name": "Basil", "quantity": "1/4 cup", "category": "herbs" },
+                { "name": "Cilantro", "quantity": "1/4 cup", "category": "herbs" },
+                { "name": "Parsley", "quantity": "1/4 cup", "category": "herbs" },
+                { "name": "Mint", "quantity": "2 tbsp", "category": "herbs" }
+            ],
+            "instructions": [
+                "Prepare quinoa",
+                "Cube and season chicken",
+                "Caramelize chicken with panela",
+                "Mix herbs for green sauce",
+                "Combine all components"
+            ],
+            "servings": 1
+        },
+        {
+            "id": "9",
+            "name": "Coconut and Almond Crusted Tilapia",
+            "type": "main",
+            "meal_time": "lunch",
+            "tags": ["high-protein", "gluten-free"],
+            "ingredients": [
+                { "name": "Tilapia", "quantity": "170g", "category": "protein" },
+                { "name": "Dried Coconut", "quantity": "1/2 cup", "category": "nuts" },
+                { "name": "Ground Almonds", "quantity": "1/2 cup", "category": "nuts" },
+                { "name": "Rice Flour", "quantity": "1/4 cup", "category": "flour" },
+                { "name": "Sago Flour", "quantity": "1/4 cup", "category": "flour" }
+            ],
+            "instructions": [
+                "Mix coconut, almonds, and flours",
+                "Coat tilapia in mixture",
+                "Cook until golden"
+            ],
+            "servings": 1
+        },
+        {
+            "id": "10",
+            "name": "Sesame Crusted Salmon",
+            "type": "main",
+            "meal_time": "lunch",
+            "tags": ["high-protein", "omega-3"],
+            "ingredients": [
+                { "name": "Fresh Salmon", "quantity": "170g", "category": "protein" },
+                { "name": "Salt", "quantity": "1/2 tsp", "category": "seasonings" },
+                { "name": "Olive Oil", "quantity": "2 tbsp", "category": "oils" },
+                { "name": "Sago Flour", "quantity": "3 tbsp", "category": "flour" },
+                { "name": "Toasted Sesame Seeds", "quantity": "1/4 cup", "category": "seeds" }
+            ],
+            "instructions": [
+                "Season salmon",
+                "Coat with flour and sesame seeds",
+                "Pan-sear in olive oil"
+            ],
+            "servings": 1
+        },
+        {
+            "id": "11",
+            "name": "Alfredo Pasta",
+            "type": "main",
+            "meal_time": "lunch",
+            "tags": ["dairy-free", "gluten-free", "creamy"],
+            "ingredients": [
+                { "name": "Yellow Onion", "quantity": "1/2 medium", "category": "vegetables" },
+                { "name": "Coconut Oil", "quantity": "1 tbsp", "category": "oils" },
+                { "name": "Garlic", "quantity": "1 clove", "category": "vegetables" },
+                { "name": "Cauliflower", "quantity": "2 cups", "category": "vegetables" },
+                { "name": "Raw Cashews", "quantity": "1/2 cup", "category": "nuts" },
+                { "name": "Cauliflower Cooking Water", "quantity": "1/2 cup", "category": "liquid" },
+                { "name": "Salt", "quantity": "1/2 tsp", "category": "seasonings" },
+                { "name": "Ground Nutmeg", "quantity": "1/8 tsp", "category": "spices" },
+                { "name": "Black Pepper", "quantity": "1/4 tsp", "category": "spices" },
+                { "name": "Nutritional Yeast", "quantity": "2 tbsp", "category": "seasonings" },
+                { "name": "Rice Pasta", "quantity": "125g", "category": "grains" },
+                { "name": "Olive Oil", "quantity": "1 tbsp", "category": "oils" },
+                { "name": "Sautéed Mushrooms", "quantity": "1 cup", "category": "vegetables" }
+            ],
+            "instructions": [
+                "Cook cauliflower and cashews until soft",
+                "Blend with seasonings for sauce",
+                "Cook rice pasta",
+                "Sauté mushrooms",
+                "Combine all components"
+            ],
+            "servings": 1
+        },
+        {
+            "id": "12",
+            "name": "Mushroom Risotto with Oyster Wings",
+            "type": "main",
+            "meal_time": "lunch",
+            "tags": ["vegetarian", "creamy"],
+            "ingredients": [
+                { "name": "Carrot", "quantity": "1 medium", "category": "vegetables" },
+                { "name": "Onion", "quantity": "1 medium", "category": "vegetables" },
+                { "name": "Celery", "quantity": "1 stalk", "category": "vegetables" },
+                { "name": "Bell Pepper", "quantity": "1/2 medium", "category": "vegetables" },
+                { "name": "Garlic", "quantity": "1 clove", "category": "vegetables" },
+                { "name": "Coconut Oil", "quantity": "1 tbsp", "category": "oils" },
+                { "name": "Brown Rice", "quantity": "1/2 cup", "category": "grains" },
+                { "name": "Fresh Mushrooms", "quantity": "2 cups", "category": "vegetables" },
+                { "name": "Coconut Cream", "quantity": "1/2 cup", "category": "dairy-alternative" },
+                { "name": "Olive Oil", "quantity": "2 tbsp", "category": "oils" },
+                { "name": "Oyster Mushrooms", "quantity": "250g", "category": "vegetables" },
+                { "name": "White Sesame Seeds", "quantity": "1 cup", "category": "seeds" },
+                { "name": "Black Sesame Seeds", "quantity": "1/2 cup", "category": "seeds" },
+                { "name": "Rice Flour", "quantity": "1/2 cup", "category": "flour" },
+                { "name": "Water", "quantity": "1/2 cup", "category": "liquid" },
+                { "name": "Salt", "quantity": "1/2 tsp", "category": "seasonings" }
+            ],
+            "instructions": [
+                "Prepare risotto base with vegetables",
+                "Cook brown rice gradually adding liquid",
+                "Add mushrooms and coconut cream",
+                "Prepare oyster wings separately",
+                "Serve risotto topped with crispy oyster wings"
+            ],
+            "servings": 4
+        },
+        {
+            "id": "13",
+            "name": "Chicken Pesto with Asparagus",
+            "type": "main",
+            "meal_time": "lunch",
+            "tags": ["high-protein", "low-carb"],
+            "ingredients": [
+                { "name": "Basil", "quantity": "1/2 cup", "category": "herbs" },
+                { "name": "Walnuts/Pine Nuts", "quantity": "10", "category": "nuts" },
+                { "name": "Olive Oil", "quantity": "1/4 cup", "category": "oils" },
+                { "name": "Salt", "quantity": "1 tsp", "category": "seasonings" },
+                { "name": "Garlic", "quantity": "2 cloves", "category": "vegetables" },
+                { "name": "Coconut Oil", "quantity": "2 tbsp", "category": "oils" },
+                { "name": "Chicken Breast", "quantity": "250g", "category": "protein" },
+                { "name": "Portobello Mushrooms", "quantity": "6", "category": "vegetables" },
+                { "name": "Asparagus", "quantity": "6 spears", "category": "vegetables" },
+                { "name": "Black Pepper", "quantity": "1/4 tsp", "category": "seasonings" }
+            ],
+            "instructions": [
+                "Make pesto by blending basil, nuts, olive oil, salt, and garlic",
+                "Heat coconut oil in a pan",
+                "Cook chicken breast until golden",
+                "Add mushrooms and asparagus",
+                "Season with salt and pepper",
+                "Top with fresh pesto"
+            ],
+            "servings": 4
+        },
+        {
+            "id": "14",
+            "name": "Coconut Rice",
+            "type": "side",
+            "meal_time": "lunch",
+            "tags": ["vegan", "gluten-free"],
+            "ingredients": [
+                { "name": "Brown Rice", "quantity": "1 cup", "category": "grains" },
+                { "name": "Coconut", "quantity": "1 small", "category": "nuts" },
+                { "name": "Organic Panela", "quantity": "3 tbsp", "category": "sweeteners" },
+                { "name": "Water", "quantity": "4 cups", "category": "liquid" }
+            ],
+            "instructions": [
+                "Combine all ingredients in a pot",
+                "Bring to a boil",
+                "Reduce heat and simmer until rice is cooked"
+            ],
+            "servings": 4
+        },
+        {
+            "id": "15",
+            "name": "Rice and Quinoa Arepas",
+            "type": "side",
+            "meal_time": "lunch",
+            "tags": ["gluten-free", "vegetarian"],
+            "ingredients": [
+                { "name": "Rice", "quantity": "1/2 cup", "category": "grains" },
+                { "name": "Quinoa", "quantity": "1/2 cup", "category": "grains" },
+                { "name": "Sesame Seeds", "quantity": "1/4 cup", "category": "seeds" },
+                { "name": "Sago Flour", "quantity": "1/4 cup", "category": "flour" },
+                { "name": "Water", "quantity": "1 cup", "category": "liquid" },
+                { "name": "Salt", "quantity": "1/2 tsp", "category": "seasonings" }
+            ],
+            "instructions": [
+                "Cook rice and quinoa separately",
+                "Mix all ingredients together",
+                "Form into patties",
+                "Cook on griddle until golden"
+            ],
+            "servings": 4
+        },
+        {
+            "id": "16",
+            "name": "Chia Arepas",
+            "type": "side",
+            "meal_time": "lunch",
+            "tags": ["gluten-free", "vegetarian", "superfood"],
+            "ingredients": [
+                { "name": "Chia Seeds", "quantity": "1/4 cup", "category": "seeds" },
+                { "name": "Quinoa", "quantity": "1 cup", "category": "grains" },
+                { "name": "Sago Flour", "quantity": "1/4 cup", "category": "flour" },
+                { "name": "Water", "quantity": "1 cup", "category": "liquid" },
+                { "name": "Salt", "quantity": "1/2 tsp", "category": "seasonings" }
+            ],
+            "instructions": [
+                "Soak chia seeds in water",
+                "Cook quinoa",
+                "Mix all ingredients together",
+                "Form into patties",
+                "Cook on griddle until golden"
+            ],
+            "servings": 4
+        }
+    ],
+    "condiments": [
+        {
+            "id": "c1",
+            "name": "Green Vinaigrette",
+            "type": "vinaigrette",
+            "tags": ["dressing", "quick"],
+            "ingredients": [
+                { "name": "Avocado", "quantity": "1/2", "category": "fruits" },
+                { "name": "Olive Oil", "quantity": "1/2 tbsp", "category": "oils" },
+                { "name": "Vinegar", "quantity": "1 tbsp", "category": "condiments" },
+                { "name": "Cilantro", "quantity": "1 tbsp", "category": "herbs" }
+            ],
+            "instructions": ["Blend all ingredients"],
+            "servings": 1,
+            "pairs_with": ["salads", "bowls", "grains"]
+        },
+        {
+            "id": "c2",
+            "name": "Orange Vinaigrette",
+            "type": "vinaigrette",
+            "tags": ["dressing", "quick"],
+            "ingredients": [
+                { "name": "Tahini", "quantity": "1 tbsp", "category": "condiments" },
+                { "name": "Honey", "quantity": "1/2 tbsp", "category": "sweeteners" },
+                { "name": "Lemon Juice", "quantity": "2 tbsp", "category": "condiments" },
+                { "name": "Ginger", "quantity": "1/2 tsp", "category": "spices" },
+                { "name": "Salt", "quantity": "1/4 tsp", "category": "seasonings" }
+            ],
+            "instructions": ["Blend all ingredients"],
+            "servings": 1,
+            "pairs_with": ["proteins", "roasted-vegetables"]
+        },
+        {
+            "id": "c3",
+            "name": "Yellow Vinaigrette",
+            "type": "vinaigrette",
+            "tags": ["dressing", "sweet-savory"],
+            "ingredients": [
+                { "name": "Ripe Mango", "quantity": "1/2 medium", "category": "fruits" },
+                { "name": "Lemon Juice", "quantity": "2 tbsp", "category": "condiments" },
+                { "name": "White Vinegar", "quantity": "1 tbsp", "category": "condiments" },
+                { "name": "Panela", "quantity": "1 tbsp", "category": "sweeteners" },
+                { "name": "Parsley", "quantity": "2 tbsp", "category": "herbs" },
+                { "name": "Mustard", "quantity": "1 tbsp", "category": "condiments" },
+                { "name": "Sesame Seeds", "quantity": "1/2 tsp", "category": "seeds" }
+            ],
+            "instructions": ["Blend all ingredients"],
+            "servings": 1,
+            "pairs_with": ["salads", "fish", "grains"]
+        }
+    ]
+} 

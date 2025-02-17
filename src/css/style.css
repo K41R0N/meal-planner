@@ -1,0 +1,1185 @@
+/* Base styles */
+:root {
+    /* Main colors */
+    --bg-primary: #C5C8F2;         /* Lighter purple */
+    --ui-primary: #72A299;         /* Softer teal */
+    --ui-hover: #8BBEB6;           /* Lighter teal for hover */
+    
+    /* Accents */
+    --accent-warm: #F2542D;        /* Warm accent - Orange red */
+    --accent-light: #F5DFBB;       /* Light accent - Cream */
+    
+    /* Monochrome */
+    --text-primary: #000000;       /* Main text - Black */
+    --text-secondary: #2C3333;     /* Secondary text - Soft black */
+    --border-dark: #2C3333;        /* Softer black */
+    --card-bg: #FFFFFF;            /* Card background - White */
+
+    /* Spacing system */
+    --space-xs: 0.5rem;   /* 8px */
+    --space-sm: 1rem;     /* 16px */
+    --space-md: 1.5rem;   /* 24px */
+    --space-lg: 2rem;     /* 32px */
+    --space-xl: 3rem;     /* 48px */
+
+    /* Typography scale */
+    --text-xs: 0.75rem;   /* 12px */
+    --text-sm: 0.875rem;  /* 14px */
+    --text-base: 1rem;    /* 16px */
+    --text-lg: 1.125rem;  /* 18px */
+    --text-xl: 1.25rem;   /* 20px */
+    --text-2xl: 1.5rem;   /* 24px */
+    --text-3xl: 2rem;     /* 32px */
+
+    /* Update shadow and border styles */
+    --shadow-sm: 4px 4px 0 var(--border-dark);
+    --shadow-md: 6px 6px 0 var(--border-dark);
+    --shadow-lg: 8px 8px 0 var(--border-dark);
+    --border-width: 1px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+.main-wrapper {
+    position: relative;
+    width: 100%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-wrapper.panel-open .container {
+    max-width: 66.67vw;
+    margin-right: calc(33.33vw + var(--space-lg));
+}
+
+.container {
+    max-width: 1000px;
+    margin: var(--space-xl) auto 0; /* Add top margin to compensate for search module */
+    padding: 0 var(--space-md);
+    display: grid;
+    gap: var(--space-xl);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Remove header styles completely */
+header {
+    display: none;
+}
+
+/* Search module base styles */
+.search-module {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 90;
+    margin: 0;
+    padding: var(--space-sm) 0;
+    display: flex;
+    justify-content: center;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.03) 0%,
+        rgba(0, 0, 0, 0.02) 50%,
+        transparent 100%
+    );
+    backdrop-filter: brightness(0.98);
+    -webkit-backdrop-filter: brightness(0.98);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-module:hover {
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.08) 0%,
+        rgba(0, 0, 0, 0.05) 50%,
+        transparent 100%
+    );
+    backdrop-filter: brightness(0.95);
+    -webkit-backdrop-filter: brightness(0.95);
+}
+
+/* Search module inner container */
+.search-module-inner {
+    position: relative;
+    display: flex;
+    gap: var(--space-sm);
+    width: 100%;
+    max-width: 600px;
+    padding: 0 var(--space-md);
+    margin: 0 auto;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Panel open state - move search module */
+body:has(.main-wrapper.panel-open) .search-module-inner {
+    transform: translateX(calc(-33.33vw / 2));
+}
+
+/* Search container styles */
+.search-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background-color: var(--card-bg);
+    border: var(--border-width) solid var(--border-dark);
+    border-radius: 100px;
+    padding: var(--space-xs);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.search-container:focus-within {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Search input styles */
+#searchInput {
+    flex: 1;
+    border: none;
+    background: none;
+    font-size: var(--text-base);
+    padding: var(--space-xs) var(--space-sm);
+    width: 100%;
+}
+
+#searchInput:focus {
+    outline: none;
+}
+
+/* Filter button styles */
+.filter-button {
+    background-color: var(--card-bg);
+    border: var(--border-width) solid var(--border-dark);
+    border-radius: 100px;
+    padding: var(--space-xs) var(--space-md);
+    font-size: var(--text-base);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.filter-button:hover,
+.filter-button.active {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Filter menu - hidden by default */
+.meal-filter {
+    display: none;
+    position: absolute;
+    top: calc(100% + var(--space-sm));
+    right: var(--space-md);
+    background-color: var(--card-bg);
+    border: var(--border-width) solid var(--border-dark);
+    border-radius: 12px;
+    padding: var(--space-sm);
+    box-shadow: var(--shadow-md);
+    z-index: 100;
+}
+
+/* Only show when active */
+.meal-filter.active {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+/* Filter menu buttons */
+.meal-filter button {
+    padding: var(--space-sm);
+    text-align: left;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: var(--text-base);
+    color: var(--text-primary);
+}
+
+.meal-filter button:hover {
+    background-color: var(--bg-primary);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    body:has(.main-wrapper.panel-open) .search-module-inner {
+        transform: none; /* Reset transform on mobile */
+    }
+
+    .meal-filter.active {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        border-radius: 16px 16px 0 0;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        padding: var(--space-md);
+        box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+        background-color: var(--card-bg);
+    }
+
+    .meal-filter button {
+        padding: var(--space-md);
+        font-size: var(--text-lg);
+        border-bottom: 1px solid var(--border-dark);
+    }
+
+    .meal-filter button:last-child {
+        border-bottom: none;
+    }
+
+    /* Main content adjustments when panel is open */
+    .main-wrapper.panel-open {
+        transform: none;
+        width: 100%;
+    }
+
+    .main-wrapper.panel-open .container {
+        max-width: 100%;
+        width: 100%;
+        margin: 0;
+        padding: var(--space-sm);
+        opacity: 0.5;
+        pointer-events: none;
+        filter: blur(2px);
+    }
+
+    /* Adjust grid layouts for mobile when panel is open */
+    .main-wrapper.panel-open .suggestion-cards,
+    .main-wrapper.panel-open .recipe-grid {
+        grid-template-columns: 1fr;
+        width: 100%;
+        padding: 0;
+        gap: var(--space-md);
+    }
+
+    /* Ensure cards take full width */
+    .main-wrapper.panel-open .suggestion-card,
+    .main-wrapper.panel-open .recipe-card {
+        width: 100%;
+        margin: 0;
+    }
+
+    /* Ensure daily suggestions take full width */
+    .main-wrapper.panel-open .daily-suggestions {
+        width: 100%;
+        margin: 0;
+        padding: var(--space-md);
+    }
+
+    .main-wrapper.panel-open ~ .search-module .search-module-inner {
+        margin-right: auto; /* Reset margin on mobile */
+    }
+}
+
+/* Recipe catalog section */
+.recipe-catalog {
+    background-color: var(--card-bg);
+    border: var(--border-width) solid var(--border-dark);
+    box-shadow: var(--shadow-md);
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+    padding: var(--space-lg);
+}
+
+/* Unified recipe card styles for both suggestions and catalog */
+.recipe-card, .suggestion-card {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    padding: var(--space-lg);
+    padding-bottom: calc(var(--space-lg) + 48px); /* Increased bottom padding for button */
+    background-color: var(--card-bg);
+    border: var(--border-width) solid var(--border-dark);
+    position: relative;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: var(--space-sm); /* Add consistent gap between elements */
+}
+
+/* Card content spacing */
+.recipe-card h2, .suggestion-card h3 {
+    font-size: var(--text-xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+    font-weight: 500;
+}
+
+.recipe-type, .suggestion-card .meal-type {
+    font-size: var(--text-sm);
+    color: var(--ui-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-sm);
+}
+
+/* Recipe tags container */
+.recipe-tags {
+    margin-bottom: var(--space-md); /* Increased space before button */
+}
+
+/* Button styles with better positioning */
+.view-recipe {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 48px; /* Fixed height for button */
+    padding: 0 var(--space-sm);
+    background-color: var(--ui-primary);
+    border: var(--border-width) solid var(--border-dark);
+    border-top: none;
+    color: var(--card-bg);
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Unified hover effects */
+.recipe-card:hover, .suggestion-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-md);
+}
+
+.view-recipe:hover {
+    background-color: var(--ui-hover);
+}
+
+/* Keep the meal type colors only for suggestions */
+.suggestion-card:nth-child(1) { border-left: 3px solid var(--bg-primary); }
+.suggestion-card:nth-child(2) { border-left: 3px solid var(--ui-primary); }
+.suggestion-card:nth-child(3) { border-left: 3px solid var(--accent-warm); }
+
+/* Update tag styles */
+.recipe-tags {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--space-xs);
+    height: 28px; /* Slightly taller for better text containment */
+    overflow: hidden;
+    position: relative;
+    margin-bottom: var(--space-sm);
+}
+
+.tag {
+    flex: 0 0 auto;
+    font-size: var(--text-xs);
+    padding: 4px 8px; /* Reduced horizontal padding */
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border: var(--border-width) solid var(--border-dark);
+    white-space: nowrap;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: min-content; /* Ensure tag doesn't shrink below content */
+    max-width: 120px; /* Maximum width for tags */
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-weight: 400;
+    opacity: 0.9;
+}
+
+.tags-expand {
+    flex: 0 0 auto;
+    font-size: var(--text-xs);
+    padding: 4px 8px;
+    background-color: var(--accent-light);
+    color: var(--text-primary);
+    border: var(--border-width) solid var(--border-dark);
+    white-space: nowrap;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.recipe-tags.expanded {
+    height: auto;
+    flex-wrap: wrap;
+}
+
+/* Adjust tag sizing when panel is open */
+.main-wrapper.panel-open .tag {
+    max-width: 100px; /* Slightly smaller max-width when panel is open */
+}
+
+/* Mobile adjustments for tags */
+@media (max-width: 768px) {
+    /* Container adjustments */
+    .container {
+        padding: var(--space-sm);
+        gap: var(--space-lg);
+    }
+
+    /* Header adjustments */
+    header {
+        padding: var(--space-md);
+        margin: 0 var(--space-md) var(--space-md);
+        width: calc(100% - var(--space-md) * 2);
+    }
+
+    /* Search and filter adjustments */
+    .search-bar {
+        width: 100%;
+        max-width: none;
+    }
+
+    .meal-filter {
+        padding: var(--space-sm);
+        margin: 0;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Daily suggestions adjustments */
+    .daily-suggestions {
+        margin: 0 var(--space-sm);
+        width: calc(100% - var(--space-sm) * 2);
+        padding: var(--space-sm);
+    }
+
+    /* Recipe grid adjustments */
+    .recipe-grid {
+        padding: var(--space-sm);
+    }
+
+    /* Card adjustments */
+    .recipe-card,
+    .suggestion-card {
+        width: 100%;
+        margin: 0;
+    }
+
+    /* Section separator adjustments */
+    .separator {
+        padding: 0 var(--space-md);
+        width: 100%;
+        margin: var(--space-lg) 0;
+    }
+
+    .separator h3 {
+        margin: 0;
+    }
+
+    /* Daily suggestions section */
+    .daily-suggestions {
+        padding: var(--space-sm);
+        margin: 0;
+        box-shadow: 6px 6px 0 var(--border-dark);
+    }
+
+    .daily-suggestions h2 {
+        font-size: var(--text-xl);
+        margin-bottom: var(--space-md);
+    }
+
+    /* Make suggestions stack vertically */
+    .suggestion-cards {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+        padding: 0;
+    }
+
+    /* Maintain card styling from desktop */
+    .suggestion-card {
+        width: 100%;
+        padding: var(--space-md);
+        padding-bottom: calc(var(--space-md) + 44px);
+        box-shadow: 6px 6px 0 var(--border-dark);
+    }
+
+    .suggestion-card h3 {
+        font-size: var(--text-lg);
+    }
+
+    /* Recipe catalog */
+    .recipe-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+        padding: var(--space-md);
+    }
+
+    .recipe-card {
+        padding: var(--space-md);
+        padding-bottom: calc(var(--space-md) + 44px);
+        box-shadow: 6px 6px 0 var(--border-dark);
+    }
+
+    .recipe-card h2 {
+        font-size: var(--text-lg);
+    }
+
+    /* Tag adjustments */
+    .recipe-tags {
+        height: auto;
+        flex-wrap: wrap;
+        margin-bottom: var(--space-sm);
+    }
+
+    .tag {
+        font-size: var(--text-sm);
+        padding: 4px 8px;
+        height: 28px;
+    }
+
+    /* Button styling consistent with desktop */
+    .view-recipe {
+        height: 44px;
+        font-size: var(--text-base);
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    /* Meal filter as scrollable row */
+.meal-filter {
+        padding: var(--space-sm) 0;
+        justify-content: flex-start;
+        margin: 0 var(--space-md);
+}
+
+.meal-filter button {
+        padding: var(--space-sm) var(--space-md);
+        font-size: var(--text-sm);
+        border: 2px solid var(--border-dark);
+        box-shadow: 4px 4px 0 var(--border-dark);
+    }
+
+    /* Section titles */
+    .separator h3 {
+        font-size: var(--text-xl);
+        margin: var(--space-lg) 0 var(--space-md);
+        padding: 0 var(--space-md);
+    }
+
+    /* Bottom sheet recipe details */
+    .recipe-detail-panel {
+        position: fixed;
+        top: auto;
+        bottom: -100vh;
+        right: 0;
+        left: 0;
+        width: 100%;
+        height: 85vh;
+        border-left: none;
+        border-top: 2px solid var(--border-dark);
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+        padding: var(--space-lg) var(--space-md);
+        transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    .recipe-detail-panel.open {
+        bottom: 0;
+        right: 0;
+    }
+
+    /* Add drag indicator */
+    .recipe-detail-panel::before {
+        content: '';
+        position: absolute;
+        top: var(--space-sm);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 4px;
+        background-color: var(--border-dark);
+        border-radius: 2px;
+        opacity: 0.3;
+    }
+
+    /* Adjust close button position */
+    .close-panel {
+        top: var(--space-sm);
+        right: var(--space-sm);
+    }
+
+    /* Recipe content adjustments */
+    .recipe-detail-content {
+        padding-top: var(--space-lg);
+        height: calc(100% - var(--space-xl));
+        overflow-y: auto;
+    }
+
+    /* Main content adjustments when panel is open */
+    .main-wrapper.panel-open {
+        transform: none;
+    }
+
+    .main-wrapper.panel-open .container {
+        max-width: 100%;
+        margin: 0;
+        opacity: 0.7;
+        pointer-events: none;
+        filter: blur(1px);
+    }
+
+    /* Overlay styles */
+    .panel-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .panel-overlay.active {
+        display: block;
+    }
+}
+
+/* Adjust grid layouts when panel is open */
+.main-wrapper.panel-open .suggestion-cards {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.main-wrapper.panel-open .recipe-grid {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* Daily suggestions section */
+.daily-suggestions {
+    position: relative;
+    padding: var(--space-xl);
+    background-color: var(--card-bg);
+    border: var(--border-width) solid var(--border-dark);
+    box-shadow: var(--shadow-md);
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto var(--space-xl); /* Add bottom margin */
+}
+
+/* Make the section title more prominent */
+.daily-suggestions h2 {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-xl);
+    text-align: center;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Recipe catalog section */
+.separator {
+    margin: var(--space-xl) 0 var(--space-lg);
+}
+
+.separator h3 {
+    font-size: var(--text-2xl);
+    color: var(--text-primary);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .daily-suggestions {
+        padding: var(--space-lg);
+        margin: 0 var(--space-sm) var(--space-xl);
+    }
+
+    .daily-suggestions h2 {
+        font-size: var(--text-2xl);
+        margin-bottom: var(--space-lg);
+    }
+
+    .separator {
+        margin: var(--space-lg) var(--space-sm) var(--space-md);
+    }
+
+    .separator h3 {
+        font-size: var(--text-xl);
+    }
+}
+
+.suggestion-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+}
+
+.suggestion-card {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    padding: var(--space-lg);
+    background-color: var(--card-bg);
+    border: var(--border-width) solid var(--border-dark);
+    position: relative;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Style for both recipe and suggestion buttons */
+.view-recipe {
+    width: 100%;
+    padding: var(--space-sm);
+    background-color: var(--ui-primary);
+    border: var(--border-width) solid var(--border-dark);
+    color: var(--card-bg);
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: auto; /* Push button to bottom */
+}
+
+.suggestion-card .view-recipe {
+    margin-top: var(--space-lg); /* Add space above button */
+}
+
+/* Hover effects */
+.suggestion-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-md);
+}
+
+.view-recipe:hover {
+    background-color: var(--ui-hover);
+}
+
+/* Maintain colored borders for meal types */
+.suggestion-card:nth-child(1) {
+    border-left: 3px solid var(--bg-primary);
+}
+
+.suggestion-card:nth-child(2) {
+    border-left: 3px solid var(--ui-primary);
+}
+
+.suggestion-card:nth-child(3) {
+    border-left: 3px solid var(--accent-warm);
+}
+
+/* Update suggestion card content spacing */
+.suggestion-card h3 {
+    margin-bottom: var(--space-xs);
+}
+
+.suggestion-card p {
+    margin-bottom: var(--space-sm);
+}
+
+.suggestion-card .recipe-tags {
+    margin-bottom: var(--space-sm);
+}
+
+/* Enhance meal type headers */
+.suggestion-card h3 {
+    font-size: var(--text-xl);
+    letter-spacing: -0.01em;
+    position: relative;
+    padding-bottom: var(--space-xs);
+}
+
+/* Remove the line decoration */
+.suggestion-card h3::after {
+    display: none;
+}
+
+/* Style meal headers differently */
+.suggestion-card:nth-child(1) h3 { color: var(--bg-primary); }
+.suggestion-card:nth-child(2) h3 { color: var(--ui-primary); }
+.suggestion-card:nth-child(3) h3 { color: var(--accent-warm); }
+
+/* Style tags to match their card's theme */
+.suggestion-card:nth-child(1) .tag { background-color: var(--bg-primary); color: var(--card-bg); }
+.suggestion-card:nth-child(2) .tag { background-color: var(--ui-primary); color: var(--card-bg); }
+.suggestion-card:nth-child(3) .tag { background-color: var(--accent-warm); color: var(--card-bg); }
+
+/* Remove the floating animation */
+.suggestion-card {
+    animation: none;
+}
+
+/* Alert states */
+.alert-success {
+    background-color: var(--ui-primary);
+    color: var(--card-bg);
+    border: 2px solid var(--border-dark);
+    padding: 1rem;
+    border-radius: 0;
+    margin: 1rem 0;
+}
+
+.alert-warning {
+    background-color: var(--accent-warm);
+    color: var(--card-bg);
+    border: 2px solid var(--border-dark);
+    padding: 1rem;
+    border-radius: 0;
+    margin: 1rem 0;
+}
+
+/* Add some depth to cards */
+.suggestion-card, .recipe-card, header, .daily-suggestions {
+    box-shadow: var(--shadow-md);
+}
+
+.suggestion-card:hover, .recipe-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Buttons hover effect */
+.view-recipe, .meal-filter button {
+    box-shadow: var(--shadow-sm);
+}
+
+.view-recipe:hover, .meal-filter button:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Add subtle animation to daily suggestions */
+@keyframes subtle-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+.suggestion-card {
+    animation: subtle-float 6s ease-in-out infinite;
+    animation-delay: calc(var(--card-index, 0) * 2s);
+}
+
+.suggestion-card:nth-child(1) { --card-index: 0; }
+.suggestion-card:nth-child(2) { --card-index: 1; }
+.suggestion-card:nth-child(3) { --card-index: 2; }
+
+/* Add side panel styles */
+.recipe-detail-panel {
+    position: fixed;
+    top: 0;
+    right: -33.33vw;
+    width: 33.33vw;
+    height: 100vh;
+    background-color: var(--card-bg);
+    border-left: var(--border-width) solid var(--border-dark);
+    padding: var(--space-lg);
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+}
+
+.recipe-detail-panel.open {
+    right: 0;
+}
+
+/* Style recipe details content */
+.recipe-detail-content {
+    display: grid;
+    gap: var(--space-md);
+}
+
+.recipe-detail-header {
+    display: grid;
+    gap: var(--space-xs);
+}
+
+.recipe-detail-header h2 {
+    font-size: var(--text-2xl);
+    color: var(--text-primary);
+}
+
+.recipe-detail-type {
+    font-size: var(--text-sm);
+    color: var(--ui-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.recipe-ingredients {
+    display: grid;
+    gap: var(--space-xs);
+}
+
+.recipe-ingredients h3 {
+    font-size: var(--text-lg);
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border-dark);
+    padding-bottom: var(--space-xs);
+}
+
+.ingredients-list {
+    display: grid;
+    gap: var(--space-xs);
+    padding-left: var(--space-md);
+}
+
+.recipe-instructions {
+    display: grid;
+    gap: var(--space-xs);
+}
+
+.recipe-instructions h3 {
+    font-size: var(--text-lg);
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border-dark);
+    padding-bottom: var(--space-xs);
+}
+
+.instructions-list {
+    display: grid;
+    gap: var(--space-sm);
+    padding-left: var(--space-md);
+}
+
+/* Close button */
+.close-panel {
+    position: absolute;
+    top: var(--space-sm);
+    right: var(--space-sm);
+    background: none;
+    border: none;
+    font-size: var(--text-xl);
+    cursor: pointer;
+    padding: var(--space-xs);
+    color: var(--text-primary);
+}
+
+/* Adjust main content when panel is open */
+.container.panel-open {
+    max-width: calc(66.67vw - var(--space-lg));
+    margin-right: 33.33vw;
+    margin-left: var(--space-lg);
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+    /* Container adjustments */
+    .container {
+        padding: var(--space-sm);
+        gap: var(--space-lg);
+    }
+
+    /* Header adjustments */
+    header {
+        padding: var(--space-md);
+        margin-bottom: var(--space-md);
+    }
+
+    header h1 {
+        font-size: var(--text-2xl);
+    }
+
+    /* Daily suggestions section */
+    .daily-suggestions {
+        padding: var(--space-sm);
+        margin: 0;
+        box-shadow: 6px 6px 0 var(--border-dark);
+    }
+
+    .daily-suggestions h2 {
+        font-size: var(--text-xl);
+        margin-bottom: var(--space-md);
+    }
+
+    /* Make suggestions stack vertically */
+    .suggestion-cards {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+        padding: 0;
+    }
+
+    /* Maintain card styling from desktop */
+    .suggestion-card {
+        width: 100%;
+        padding: var(--space-md);
+        padding-bottom: calc(var(--space-md) + 44px);
+        box-shadow: 6px 6px 0 var(--border-dark);
+    }
+
+    .suggestion-card h3 {
+        font-size: var(--text-lg);
+    }
+
+    /* Recipe catalog */
+    .recipe-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+        padding: var(--space-md);
+    }
+
+    .recipe-card {
+        padding: var(--space-md);
+        padding-bottom: calc(var(--space-md) + 44px);
+        box-shadow: 6px 6px 0 var(--border-dark);
+    }
+
+    .recipe-card h2 {
+        font-size: var(--text-lg);
+    }
+
+    /* Tag adjustments */
+    .recipe-tags {
+        height: auto;
+        flex-wrap: wrap;
+        margin-bottom: var(--space-sm);
+    }
+
+    .tag {
+        font-size: var(--text-sm);
+        padding: 4px 8px;
+        height: 28px;
+    }
+
+    /* Button styling consistent with desktop */
+    .view-recipe {
+        height: 44px;
+        font-size: var(--text-base);
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    /* Meal filter as scrollable row */
+    .meal-filter {
+        padding: var(--space-sm) 0;
+        justify-content: flex-start;
+        margin: 0 var(--space-md);
+    }
+
+    .meal-filter button {
+        padding: var(--space-sm) var(--space-md);
+        font-size: var(--text-sm);
+        border: 2px solid var(--border-dark);
+        box-shadow: 4px 4px 0 var(--border-dark);
+    }
+
+    /* Section titles */
+    .separator h3 {
+        font-size: var(--text-xl);
+        margin: var(--space-lg) 0 var(--space-md);
+        padding: 0 var(--space-md);
+    }
+
+    /* Bottom sheet recipe details */
+    .recipe-detail-panel {
+        position: fixed;
+        top: auto;
+        bottom: -100vh;
+        right: 0;
+        left: 0;
+        width: 100%;
+        height: 85vh;
+        border-left: none;
+        border-top: 2px solid var(--border-dark);
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+        padding: var(--space-lg) var(--space-md);
+        transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    .recipe-detail-panel.open {
+        bottom: 0;
+        right: 0;
+    }
+
+    /* Add drag indicator */
+    .recipe-detail-panel::before {
+        content: '';
+        position: absolute;
+        top: var(--space-sm);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 4px;
+        background-color: var(--border-dark);
+        border-radius: 2px;
+        opacity: 0.3;
+    }
+
+    /* Adjust close button position */
+    .close-panel {
+        top: var(--space-sm);
+        right: var(--space-sm);
+    }
+
+    /* Recipe content adjustments */
+    .recipe-detail-content {
+        padding-top: var(--space-lg);
+        height: calc(100% - var(--space-xl));
+        overflow-y: auto;
+    }
+
+    /* Main content adjustments when panel is open */
+    .main-wrapper.panel-open {
+        transform: none;
+    }
+
+    .main-wrapper.panel-open .container {
+        max-width: 100%;
+        margin: 0;
+        opacity: 0.7;
+        pointer-events: none;
+        filter: blur(1px);
+    }
+
+    /* Overlay styles */
+    .panel-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .panel-overlay.active {
+        display: block;
+    }
+}
+
+/* Adjust grid layouts when panel is open */
+.main-wrapper.panel-open .suggestion-cards {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.main-wrapper.panel-open .recipe-grid {
+    grid-template-columns: repeat(2, 1fr);
+} 
