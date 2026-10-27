@@ -16,14 +16,17 @@ import { FoodLog } from './components/Log';
 import { PlanBuilder } from './components/PlanBuilder';
 import { RecipeBook } from './components/RecipeBook';
 import { RecipeDetails } from './components/RecipeDetails';
+import { RecipeImport } from './components/RecipeImport';
 import { Settings } from './components/Settings';
 import { Shopping } from './components/Shopping';
 import { makeId } from './components/shared';
 import { reconcileShoppingChecks, replaceWithChosenBatch, shoppingSignature } from './state-utils';
+import { extractYouTubeReference, parseYouTubeReference } from '@domain/youtube';
+import {recipeJsonFileFits,RECIPE_JSON_SIZE_MESSAGE} from './import-limits';
 
-type Page = 'week' | 'recipes' | 'shopping' | 'log' | 'settings';
+type Page = 'week' | 'recipes' | 'shopping' | 'log' | 'settings' | 'import';
 
-const navItems: Array<{ page: Exclude<Page, 'settings'>; label: string; icon: typeof CalendarDays }> = [
+const navItems: Array<{ page: Exclude<Page, 'settings' | 'import'>; label: string; icon: typeof CalendarDays }> = [
   { page: 'week', label: 'This Week', icon: CalendarDays },
   { page: 'recipes', label: 'Recipe Book', icon: BookOpen },
   { page: 'shopping', label: 'Shopping', icon: ListChecks },
@@ -32,7 +35,26 @@ const navItems: Array<{ page: Exclude<Page, 'settings'>; label: string; icon: ty
 
 function pageFromHash(): Page {
   const name = window.location.hash.replace(/^#/, '');
-  return name === 'recipes' || name === 'shopping' || name === 'log' || name === 'settings' || name === 'week' ? name : 'week';
+  return name === 'recipes' || name === 'shopping' || name === 'log' || name === 'settings' || name === 'week' || name === 'import' ? name : 'week';
+}
+
+function sharedYouTubeUrlFromLocation(): { url: string | null; hasShare: boolean } {
+  const location = new URL(window.location.href);
+  const sharedUrl = location.searchParams.get('sharedUrl');
+  const sharedText = location.searchParams.get('sharedText');
+  if (sharedUrl === null && sharedText === null) return { url: null, hasShare: false };
+  let reference = null;
+  try { reference = sharedUrl ? parseYouTubeReference(sharedUrl) : null; } catch { /* Shared text may contain the usable link instead. */ }
+  if (!reference && sharedText) reference = extractYouTubeReference(sharedText);
+  return { url: reference?.url ?? null, hasShare: true };
+}
+
+function removeSharedImportQuery(routeToImport: boolean): void {
+  const location = new URL(window.location.href);
+  location.searchParams.delete('sharedUrl');
+  location.searchParams.delete('sharedText');
+  if (routeToImport) location.hash = '#import';
+  window.history.replaceState(window.history.state, '', `${location.pathname}${location.search}${location.hash}`);
 }
 
 function planWithChange(plan: WeekPlan, mealId: string, changes: { servings?: number; locked?: boolean; recipeId?: string }): WeekPlan {
@@ -45,7 +67,8 @@ export default function App() {
   const [loadError, setLoadError] = useState('');
   const [persistenceError, setPersistenceError] = useState('');
   const [notice, setNotice] = useState('');
-  const [page, setPage] = useState<Page>(() => pageFromHash());
+  const [sharedImport] = useState(sharedYouTubeUrlFromLocation);
+  const [page, setPage] = useState<Page>(() => sharedImport.url ? 'import' : pageFromHash());
   const [filters, setFilters] = useState<Filters>(() => defaultFilters());
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
   const stateRef = useRef<AppState | null>(null);
@@ -69,6 +92,9 @@ export default function App() {
   }, []);
 
   useEffect(() => { stateRef.current = state; }, [state]);
+  useEffect(() => {
+    if (sharedImport.hasShare) removeSharedImportQuery(Boolean(sharedImport.url));
+  }, [sharedImport]);
   useEffect(() => {
     const onHash = () => setPage(pageFromHash());
     window.addEventListener('hashchange', onHash);
@@ -102,7 +128,13 @@ export default function App() {
     if (window.location.hash !== hash) window.location.hash = hash;
     else setPage(next);
   };
-  const updateState = (updater: (current: AppState) => AppState) => setState(current => current ? reconcileShoppingChecks(current,updater(current)) : current);
+  const updateState = (updater: (current: AppState) => AppState) => {
+    const current = stateRef.current;
+    if (!current) return;
+    const next = reconcileShoppingChecks(current, updater(current));
+    stateRef.current = next;
+    setState(next);
+  };
   const activePlan = state?.plans.find(plan => plan.id === state.activePlanId) ?? null;
   const selectedRecipe = selectedRecipeId ? state?.recipes.find(recipe => recipe.id === selectedRecipeId) ?? null : null;
   const filteredRecipes = useMemo(() => state ? filterRecipes(state.recipes, filters) : [], [state, filters]);
@@ -130,12 +162,39 @@ export default function App() {
       updateState(current => ({ ...current, recipes: current.recipes.map(item => item.id === validated.id ? validated : item) }));
     } catch (error) { setNotice(error instanceof Error ? error.message : 'Recipe edits could not be saved.'); }
   };
-  const addRecipe = (recipe: Recipe) => {
+  const addRecipe = (recipe: Recipe): boolean => {
     try {
       const validated = validateRecipes([recipe])[0];
-      updateState(current => ({ ...current, recipes: [...current.recipes, validated] }));
-      setNotice('Personal recipe added to your book.');
-    } catch (error) { setNotice(error instanceof Error ? error.message : 'Recipe could not be added.'); }
+      const current = stateRef.current;
+      if (!current) {
+        setNotice('The recipe book is not ready yet.');
+        return false;
+      }
+      if (current.recipes.some(item => item.id === validated.id)) {
+        setNotice('That recipe is already in your book. It was not overwritten.');
+        return false;
+      }
+      const next = reconcileShoppingChecks(current, { ...current, recipes: [...current.recipes, validated] });
+      stateRef.current = next;
+      setState(next);
+      setNotice('Recipe added to your book.');
+      return true;
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Recipe could not be added.');
+      return false;
+    }
+  };
+  const openExistingYouTubeRecipe = (videoId: string): boolean => {
+    const existing = stateRef.current?.recipes.find(recipe => {
+      if (recipe.id === `youtube:${videoId}`) return true;
+      if (!recipe.sourceUrl) return false;
+      try { return parseYouTubeReference(recipe.sourceUrl).videoId === videoId; } catch { return false; }
+    });
+    if (!existing) return false;
+    setSelectedRecipeId(existing.id);
+    navigate('recipes');
+    setNotice('This video is already in your recipe book. Your saved recipe was not overwritten.');
+    return true;
   };
   const selectPlan = (id: string) => updateState(current => ({ ...current, activePlanId: id }));
   const generatePlan = (config: PlanConfig, replaceCurrent: boolean): boolean => {
@@ -232,7 +291,7 @@ export default function App() {
   const exportState = () => { if (state) downloadJson(state, `meal-planner-backup-${new Date().toISOString().slice(0, 10)}.json`); };
   const readJson = async (file: File): Promise<unknown> => {
     if (!(file.type === 'application/json' || file.name.toLowerCase().endsWith('.json'))) throw new Error('Choose a JSON file.');
-    if (file.size > 8 * 1024 * 1024) throw new Error('Choose a JSON file smaller than 8 MB.');
+    if (!recipeJsonFileFits(file.size)) throw new Error(RECIPE_JSON_SIZE_MESSAGE);
     try { return JSON.parse(await file.text()); } catch { throw new Error('That file is not valid JSON.'); }
   };
   const restoreBackup = async (file: File) => {
@@ -261,7 +320,8 @@ export default function App() {
     <aside className="desktop-sidebar"><a href="#week" className="brand" onClick={() => navigate('week')}><span className="brand-mark"><ChefHat size={19} /></span><span>Meal<br />Planner</span></a><nav aria-label="Primary navigation">{navItems.map(({ page: itemPage, label, icon: Icon }) => <a href={`#${itemPage}`} key={itemPage} className={page === itemPage ? 'is-active' : ''} aria-current={page === itemPage ? 'page' : undefined} onClick={() => navigate(itemPage)}><Icon size={19} /><span>{label}</span></a>)}</nav><div className="sidebar-bottom"><a href="#settings" className={page === 'settings' ? 'is-active' : ''} onClick={() => navigate('settings')}><SettingsIcon size={19} /><span>Settings</span></a><p>Private to this device</p></div></aside>
     <div className="app-main"><header className="mobile-topbar"><a className="brand" href="#week" onClick={() => navigate('week')}><span className="brand-mark"><ChefHat size={18} /></span><span>Meal Planner</span></a><a href="#settings" className="icon-button" aria-label="Open settings" onClick={() => navigate('settings')}><SettingsIcon size={20} /></a></header>{persistenceError && <div className="persistence-warning" role="alert"><AlertTriangle size={18} /><span>{persistenceError}</span></div>}{notice && <div className="app-notice" role="status">{notice}</div>}
       {page === 'week' && <PlanBuilder recipes={state.recipes} plans={state.plans} activePlan={activePlan} bookFilters={filters} onSelectPlan={selectPlan} onGenerate={generatePlan} onOpenRecipe={recipe => setSelectedRecipeId(recipe.id)} onUpdateMeal={updateMeal} onReplaceMeal={replaceOne} onReplaceBatch={replaceWholeBatch} />}
-      {page === 'recipes' && <RecipeBook recipes={state.recipes} filteredRecipes={filteredRecipes} filters={filters} onFiltersChange={setFilters} onOpenRecipe={recipe => setSelectedRecipeId(recipe.id)} onAddRecipe={addRecipe} />}
+      {page === 'recipes' && <RecipeBook recipes={state.recipes} filteredRecipes={filteredRecipes} filters={filters} onFiltersChange={setFilters} onOpenRecipe={recipe => setSelectedRecipeId(recipe.id)} onAddRecipe={addRecipe} onImportFromYouTube={() => navigate('import')} />}
+      {page === 'import' && <RecipeImport initialUrl={sharedImport.url} onBack={() => navigate('recipes')} onOpenExisting={openExistingYouTubeRecipe} onSaveRecipe={addRecipe} onOpenSaved={recipe => { setSelectedRecipeId(recipe.id); navigate('recipes'); }} />}
       {page === 'shopping' && <Shopping plan={activePlan} items={shoppingItems} checks={state.shoppingChecks} changedAmounts={changedShoppingAmounts} manualItems={activePlan ? state.manualShopping[activePlan.id] ?? [] : []} onSetCheck={setShoppingCheck} onAddManual={addManualShopping} onToggleManual={toggleManualShopping} onRemoveManual={removeManualShopping} />}
       {page === 'log' && <FoodLog recipes={state.recipes} plan={activePlan} logs={state.logs} targets={state.targets} onAddRecipeLog={addRecipeLog} onAddManualLog={addManualLog} onDelete={deleteLog} onTargets={setTargets} onOpenRecipe={recipe => setSelectedRecipeId(recipe.id)} />}
       {page === 'settings' && <Settings state={state} onExport={exportState} onRestore={restoreBackup} onBankImport={importBank} />}

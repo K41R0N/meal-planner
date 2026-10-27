@@ -1,9 +1,10 @@
-import { ExternalLink, Heart, Minus, Pencil, Plus, Star, Trash2, X } from 'lucide-react';
+import { ChefHat, ExternalLink, Heart, Minus, Pencil, Plus, Star, Trash2, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { validateRecipes } from '@domain/index';
 import { emptyNutrition, mealTypes, type IngredientLine, type MacroKey, type Recipe, type WeekPlan } from '@domain/types';
 import { chosenBatchTargets } from '../state-utils';
 import { allMacros, commaList, displayNumber, humanRole, isPositiveNumber, macroLabels, macroValue, makeId } from './shared';
+import { CookMode } from './CookMode';
 
 interface RecipeDetailsProps {
   recipe: Recipe | null;
@@ -26,6 +27,7 @@ function normalizedForm(recipe:Recipe,basis=recipe.nutritionBasis,yieldValue=rec
 export function RecipeDetails({recipe,recipes,plans,activePlanId,onClose,onUpdate,onAddToWeek,onReplaceChosenBatch,onStartPlanner}:RecipeDetailsProps){
   const dialogRef=useRef<HTMLElement>(null);
   const [editing,setEditing]=useState(false);
+  const [cooking,setCooking]=useState(false);
   const [gapsOpen,setGapsOpen]=useState(false);
   const [servings,setServings]=useState('1');
   const [selectedMealId,setSelectedMealId]=useState('');
@@ -41,10 +43,13 @@ export function RecipeDetails({recipe,recipes,plans,activePlanId,onClose,onUpdat
   const compatibleOpenMeals=useMemo(()=>openMeals.filter(meal=>Boolean(recipe?.roles.includes(meal.slot)&&activePlan&&new Set(activePlan.meals.map(existing=>existing.id===meal.id?recipe.id:existing.recipeId)).size===activePlan.config.uniqueRecipes)),[openMeals,recipe,activePlan]);
   const batchTargets=useMemo(()=>recipe&&activePlan?chosenBatchTargets(activePlan,recipe,recipes):[],[recipe,activePlan,recipes]);
 
+  useEffect(()=>setCooking(false),[recipe?.id]);
   useEffect(()=>{setEditing(false);setForm(recipe);setTagsText(recipe?.tags.join(', ')??'');setCategoriesText(recipe?.categories.join(', ')??'');setStepsText(recipe?.steps.join('\n')??'');setServings('1');setSelectedMealId('');setSelectedBatchId('');setSelectionMode('batch');setGapsOpen(false);setEditError('');},[recipe?.id]);
   useEffect(()=>{
     if(!recipe)return;
     const previous=document.activeElement as HTMLElement|null;
+    const previousOverflow=document.body.style.overflow;
+    document.body.style.overflow='hidden';
     const timeout=window.setTimeout(()=>dialogRef.current?.querySelector<HTMLElement>('button,input,select,textarea,a')?.focus(),0);
     const keydown=(event:KeyboardEvent)=>{
       if(event.key==='Escape'){event.preventDefault();onClose();}
@@ -56,7 +61,7 @@ export function RecipeDetails({recipe,recipes,plans,activePlanId,onClose,onUpdat
       }
     };
     window.addEventListener('keydown',keydown);
-    return()=>{window.clearTimeout(timeout);window.removeEventListener('keydown',keydown);previous?.focus();};
+    return()=>{window.clearTimeout(timeout);window.removeEventListener('keydown',keydown);document.body.style.overflow=previousOverflow;previous?.focus();};
   },[recipe?.id]);
   if(!recipe||!form)return null;
   const patch=(changes:Partial<Recipe>)=>setForm({...form,...changes});
@@ -84,9 +89,11 @@ export function RecipeDetails({recipe,recipes,plans,activePlanId,onClose,onUpdat
 
   return <div className="modal-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)onClose();}}>
     <section className="recipe-details" role="dialog" aria-modal="true" aria-labelledby="recipe-detail-title" ref={dialogRef}>
-      <header className="recipe-details__header"><div><p className="eyebrow">{form.sourceName||'Personal recipe'}</p><h2 id="recipe-detail-title">{form.name}</h2></div><button type="button" className="icon-button" onClick={onClose} aria-label="Close recipe"><X/></button></header>
+      <header className="recipe-details__header"><div><h2 id="recipe-detail-title">{form.name}</h2><p className="detail-source-caption">{form.sourceName||'Personal recipe'}</p></div><button type="button" className="icon-button" onClick={onClose} aria-label="Close recipe"><X/></button></header>
       <div className="recipe-details__scroll">
-        <div className="recipe-detail-actions"><button type="button" className={`button button--quiet ${form.favorite?'is-favorite':''}`} onClick={()=>{const next={...recipe,favorite:!recipe.favorite};setForm(next);onUpdate(next);}}><Heart size={17} fill={form.favorite?'currentColor':'none'}/> {form.favorite?'Saved favorite':'Save favorite'}</button><button type="button" className="button button--quiet" onClick={toggleEditing}><Pencil size={17}/> {editing?'Discard edits':'Edit details'}</button></div>
+        {!cooking&&<div className="recipe-detail-actions"><button type="button" className={`button button--quiet ${form.favorite?'is-favorite':''}`} disabled={editing} onClick={()=>{const next={...recipe,favorite:!recipe.favorite};setForm(next);onUpdate(next);}}><Heart size={17} fill={form.favorite?'currentColor':'none'}/> {form.favorite?'Saved favorite':'Save favorite'}</button><button type="button" className="button button--quiet" onClick={toggleEditing}><Pencil size={17}/> {editing?'Discard edits':'Edit details'}</button>{!editing&&<button type="button" className="button" disabled={!form.steps.length} onClick={()=>setCooking(true)}><ChefHat size={17}/> Start cooking</button>}</div>}
+        {cooking&&<CookMode recipe={form} servings={isPositiveNumber(servings)?Number(servings):1} onExit={()=>setCooking(false)}/>}
+        {!cooking&&<>
         {editing?<form className="detail-section edit-recipe" onSubmit={saveEdits}>
           <h3>Personal recipe details</h3>{editError&&<p className="form-error" role="alert">{editError}</p>}
           <div className="form-grid">
@@ -122,12 +129,14 @@ export function RecipeDetails({recipe,recipes,plans,activePlanId,onClose,onUpdat
           <section className="detail-section"><h3>Cooking steps</h3>{form.steps.length?<ol className="steps-list">{form.steps.map((step,index)=><li key={`${index}-${step}`}>{step}</li>)}</ol>:<p className="quiet">Cooking steps have not been added.</p>}</section>
           <section className="detail-section"><h3>Nutrition</h3><div className="nutrition-comparison"><div><h4>Confirmed per serving</h4>{allMacros.map(key=><p key={key}><span>{macroLabels[key]}</span><strong>{macroValue(key,form.nutrition[key])}</strong></p>)}</div><div><h4>Reported by source</h4><p className="field-hint">Basis: {form.nutritionBasis.replace(/_/g,' ')}</p>{allMacros.map(key=><p key={key}><span>{macroLabels[key]}</span><strong>{macroValue(key,form.reportedNutrition[key])}</strong></p>)}</div></div>{form.nutritionEvidence&&<p className="source-note">{form.nutritionEvidence}</p>}</section>
           <section className="detail-section"><h3>Source</h3><p>{form.creatorCredit?form.creatorCredit+' · ':''}{form.sourceName||'Personal recipe'}</p>{form.viewCount!==null&&<p className="source-note">{new Intl.NumberFormat().format(form.viewCount)} views{form.viewCountAt?` · recorded ${form.viewCountAt}`:''}</p>}{form.sourceUrl&&<a className="source-link" href={form.sourceUrl} target="_blank" rel="noopener noreferrer">Open original source <ExternalLink size={15}/></a>}</section>
+          {form.sourceEvidence&&<details className="detail-section original-source"><summary>Original extraction text</summary><p className="field-hint">Imported from {form.sourceEvidence.method} · {new Date(form.sourceEvidence.acquiredAt).toLocaleDateString()}. Your edits do not alter this evidence.</p><pre>{form.sourceEvidence.description}</pre>{form.sourceEvidence.captions&&<><h4>Available captions</h4><pre>{form.sourceEvidence.captions}</pre></>}</details>}
           {form.dataGaps.length>0&&<section className="detail-section data-gaps"><button type="button" className="disclosure" aria-expanded={gapsOpen} onClick={()=>setGapsOpen(value=>!value)}>{gapsOpen?<Minus size={16}/>:<Plus size={16}/>} Review missing source details</button>{gapsOpen&&<ul>{form.dataGaps.map(gap=><li key={gap}>{gap}</li>)}</ul>}</section>}
         </>}
         {!editing&&<section className="detail-section add-to-week"><h3>Use in your saved week</h3>{activePlan?<>
           <div className="chip-row"><button type="button" className={`chip ${selectionMode==='batch'?'is-active':''}`} aria-pressed={selectionMode==='batch'} onClick={()=>setSelectionMode('batch')}>Replace a recipe batch</button><button type="button" className={`chip ${selectionMode==='slot'?'is-active':''}`} aria-pressed={selectionMode==='slot'} onClick={()=>setSelectionMode('slot')}>One meal slot</button></div>
           {selectionMode==='batch'?(batchTargets.length?<><p className="field-hint">Use this chosen recipe in every occurrence of an unlocked batch. Existing portions and other recipes stay unchanged.</p><label className="field"><span>Batch to replace</span><select value={selectedBatchId} onChange={event=>setSelectedBatchId(event.target.value)}><option value="">Choose a batch</option>{batchTargets.map(batch=><option key={batch.id} value={batch.id}>{batch.name} · {batch.meals} meals · {displayNumber(batch.servings)} servings</option>)}</select></label><button type="button" className="button" disabled={!selectedBatch} onClick={()=>{if(selectedBatch)onReplaceChosenBatch(form.id,activePlan.id,selectedBatch.id);}}>Replace batch with this recipe</button></>:<p className="quiet">No unlocked batch matches this recipe's roles and the saved filters, or this recipe is already in the week. Unlock the batch, adjust the plan rules, or use a matching individual slot.</p>):(compatibleOpenMeals.length?<><label className="field"><span>Open plan slot</span><select value={selectedMealId} onChange={event=>setSelectedMealId(event.target.value)}><option value="">Choose a slot</option>{compatibleOpenMeals.map(meal=><option key={meal.id} value={meal.id}>{meal.date} · {humanRole(meal.slot)}{meal.recipeId===form.id?' (already here)':''}</option>)}</select></label><label className="field"><span>Servings</span><input type="number" min="0.25" step="0.25" value={servings} onChange={event=>setServings(event.target.value)}/></label><button type="button" className="button" disabled={!selectedMeal||!isPositiveNumber(servings)} onClick={()=>{if(selectedMeal&&isPositiveNumber(servings))onAddToWeek(form.id,activePlan.id,selectedMeal.id,Number(servings));}}>Use in selected slot</button></>:<p className="quiet">No matching open slot keeps the configured distinct-recipe count. Replace a whole batch instead.</p>)}
         </>:<><p className="quiet">Create a week first, then choose recipes or replace prepared batches.</p><button type="button" className="button" onClick={onStartPlanner}>Start a plan</button></>}</section>}
+        </>}
       </div>
     </section>
   </div>;

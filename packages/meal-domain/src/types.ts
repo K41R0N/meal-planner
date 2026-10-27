@@ -38,6 +38,12 @@ export interface Recipe {
   dataGaps: string[];
   favorite: boolean;
   addedAt: string;
+  sourceEvidence?: {
+    method: 'description' | 'captions' | 'manual';
+    description: string;
+    captions: string | null;
+    acquiredAt: string;
+  };
 }
 export type SortOrder = 'popular' | 'name' | 'calories' | 'protein' | 'carbs' | 'fat' | 'fiber' | 'sugar' | 'sodium' | 'mealPrep' | 'newest';
 export interface Filters {

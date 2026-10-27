@@ -1,0 +1,23 @@
+{
+  "env": {
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "DO_NOT_TRACK": "1"
+  },
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/personal-*.json)",
+      "Read(**/*backup*.json)"
+    ]
+  },
+  "disableClaudeAiConnectors": true,
+  "disableAllHooks": true,
+  "disableSkillShellExecution": true,
+  "enabledPlugins": {
+    "compound-engineering@compound-engineering-plugin": true,
+    "impeccable@impeccable": true,
+    "awwwards@mealbook-design": true,
+    "jury@mealbook-design": true
+  }
+}

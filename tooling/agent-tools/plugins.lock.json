@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "scope": "project",
+  "sources": [
+    {"repo":"EveryInc/compound-engineering-plugin","revision":"d6f3881f38e9cfa89b17764334b04b7f3841f134","plugin":"compound-engineering","version":"3.33.0"},
+    {"repo":"pbakaus/impeccable","revision":"414603bf14c7a344edb466bb1f85690c77ce8b7d","plugin":"impeccable","version":"4.8.0"},
+    {"repo":"juliobsz/skills","revision":"add880bd6ec9f5592a1482846fc0dd282c9161bc","plugins":["awwwards","jury"],"packaging":"unchanged skills in explicit native wrappers"},
+    {"repo":"vercel-labs/agent-skills","revision":"063bee94c3f4df8453406c830b0a7df0f2860278","skills":["vercel-react-best-practices","web-design-guidelines"]}
+  ]
+}

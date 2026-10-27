@@ -13,3 +13,5 @@ user-data/
 __pycache__/
 *.pyc
 android/
+.venv/
+.claude/settings.local.json

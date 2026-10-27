@@ -15,5 +15,5 @@
     "paths": {"@domain/*": ["packages/meal-domain/src/*"]},
     "types": ["vite/client", "node"]
   },
-  "include": ["apps/web/src", "packages/meal-domain/src", "tests", "vite.config.ts"]
+  "include": ["apps/web/src", "packages/meal-domain/src", "server", "tests", "vite.config.ts"]
 }

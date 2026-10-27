@@ -1,0 +1,16 @@
+{
+  "name": "jury",
+  "version": "add880bd6ec9",
+  "description": "Native package of the unchanged juliobsz jury skill, pinned to add880bd6ec9f5592a1482846fc0dd282c9161bc.",
+  "author": {
+    "name": "juliobsz",
+    "url": "https://github.com/juliobsz"
+  },
+  "repository": "https://github.com/juliobsz/skills",
+  "license": "MIT",
+  "skills": ".",
+  "metadata": {
+    "upstreamRevision": "add880bd6ec9f5592a1482846fc0dd282c9161bc",
+    "packagingOnly": true
+  }
+}

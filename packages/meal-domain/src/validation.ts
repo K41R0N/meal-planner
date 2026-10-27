@@ -262,7 +262,16 @@ const recipe = (value: unknown, path: string): Recipe => {
     dataGaps: stringArray(dataGaps, `${path}.dataGaps`),
     favorite,
     addedAt: timestamp(value.addedAt, `${path}.addedAt`),
+    ...(value.sourceEvidence === undefined ? {} : {sourceEvidence: sourceEvidence(value.sourceEvidence,`${path}.sourceEvidence`)}),
   };
+};
+
+const sourceEvidence = (value:unknown,path:string):NonNullable<Recipe['sourceEvidence']> => {
+  if(!isRecord(value))return fail(path,'must be a source evidence object.');
+  if(!['description','captions','manual'].includes(String(value.method)))return fail(`${path}.method`,'must state a supported source method.');
+  if(typeof value.description!=='string'||value.description.length>32000)return fail(`${path}.description`,'must be source text no longer than 32,000 characters.');
+  if(value.captions!==null&&(typeof value.captions!=='string'||value.captions.length>80000))return fail(`${path}.captions`,'must be null or source text no longer than 80,000 characters.');
+  return {method:value.method as NonNullable<Recipe['sourceEvidence']>['method'],description:value.description,captions:value.captions as string|null,acquiredAt:timestamp(value.acquiredAt,`${path}.acquiredAt`)};
 };
 
 const importedMacroNutrition = (value: unknown, path: string): Nutrition => {

@@ -121,3 +121,15 @@ Before app implementation, settle three choices: preferred weekly template and i
 ## Approved implementation decisions
 
 Approved by the user on 2026-10-26. Single-user personal mode only; no organization switching or account management. Proceed with flexible meal slots, an editable one-person seven-day template, saved repeated portions, and the offline card-led PWA now. Native Android and multi-user support remain later work. The Manus workspace is a preview/build mirror; K41R0N/meal-planner remains the source foundation and no existing deployment is replaced automatically.
+
+## Approved upgrade — native development plugins and YouTube import
+
+Confirmed by the user at 20:45 on 2026-10-26. Install Claude Code in this cloud workspace; use project-scoped Compound Engineering, Impeccable, the reviewed juliobsz Awwwards/Jury package and selected Vercel performance/interface skills. Record pinned source revisions and avoid native/portable duplicate installs. Installed workflows do not authorize publishing, external GitHub pushes, credential disclosure, cross-model peers, automated shipping or unnecessary libraries. Preserve the reference card design and mobile/offline goals; use critique and measured interface quality rather than cinematic effects.
+
+Add a small Node import service under `server/` and shared source/import contracts under `packages/meal-domain/src/`. It accepts only validated YouTube video URLs/IDs, retrieves source descriptions with an available-captions fallback, calls a verified managed extraction model, validates the result, and returns a draft plus provenance for client-side review. The service never persists personal recipes, plans, targets or consumed-meal logs. Requests and model/source size are bounded; imports are explicit user actions, not unattended crawling. Unknown nutrition is never estimated. Source evidence and extraction gaps remain visible.
+
+Add an import-review sheet in `apps/web/src/components/`, with a reusable client under `apps/web/src/`. Source acquisition, review and saving are distinct states. Retain drafts on cancellation/retry; save only after in-app confirmation. Existing video IDs route to existing recipes rather than overwriting edits. After save, open the shared detail and offer planning through existing batch/slot controls so grocery arithmetic uses the same domain engine.
+
+Use an app-owned Web Share Target manifest where supported and a paste fallback everywhere. OS sharing requires a later published and installed PWA and is not a native APK feature. Keep service-worker caching for saved recipe/planning/shopping flows; never cache API responses or private tokens. Configure a container/backend serving declaration for eventual publication, but do not deploy. Use the same origin for relative API calls.
+
+Keep personal-first device storage and backup version compatibility. Leave accounts, cloud sync, native APK and hosted self-hosted inference as later decisions. Existing recipe facts, credit, nutrition basis, unit-safe shopping behavior and actual-portion logging remain unchanged.

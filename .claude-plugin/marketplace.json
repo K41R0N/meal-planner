@@ -1,0 +1,16 @@
+{
+  "name": "mealbook-design",
+  "owner": {
+    "name": "Meal Planner project"
+  },
+  "plugins": [
+    {
+      "name": "awwwards",
+      "source": "./tooling/plugin-packages/awwwards"
+    },
+    {
+      "name": "jury",
+      "source": "./tooling/plugin-packages/jury"
+    }
+  ]
+}
