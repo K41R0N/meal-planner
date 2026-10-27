@@ -1,6 +1,6 @@
 # Meal Planner
 
-A personal-first, Android-oriented recipe book, weekly meal-prep planner, grocery list and actual-portion nutrition log. It now imports YouTube recipe text into an explicit review-and-save flow, while saved recipes, planning, shopping and cooking steps remain usable offline. No accounts, organization switcher or cloud sync in this version. Native Android packaging and multi-user support are later work.
+A personal-first, Today-first recipe book, batch meal-prep planner, purchase-aware grocery list and actual-portion nutrition log. The approved card language applies to phone and desktop, not just future Android. Four primary destinations are Today, My week, Recipe book and Shop; history, importing, goals and advanced organization remain secondary. No accounts, organization switcher or cloud sync in this version. Native Android packaging and multi-user support are later work.
 
 This evolves `K41R0N/meal-planner`. The original prototype is preserved in `src/` and `legacy/`, and its 16 recipes and 3 condiments are retained. Storyteller Tactics informed card/navigation patterns only; no purchased deck content or artwork is copied.
 
@@ -29,7 +29,9 @@ Use **Recipe Book → Import from YouTube**. Paste a secure video link. The serv
 
 The request returns a draft, not a saved recipe. Review title, ingredients, amounts/units, steps, yield, meal roles, tags/categories and reported nutrition. Unknown values remain null. Source text and creator links remain visible. Confirm a serving basis only if supported; the app never estimates nutrition from ingredients. Existing video IDs open the saved recipe without overwriting edits. Cancellation and return-to-review retain the draft within the browser session.
 
-After saving, the shared recipe detail offers **Use in your saved week**. Choose an unlocked batch or compatible meal slot. Shopping then recalculates from planned servings and base yields, retaining check-offs only for unchanged requirements. Set an unknown yield explicitly before expecting scaled grocery quantities. **Start cooking** provides step progress, ingredient checks and optional screen-awake access; it never logs consumption automatically.
+After saving, choose Cook today, Add to my week or Keep in my book. Today remains selected on refresh and offers Start cooking, Resume cooking or Have a portion as appropriate. Cooking persists checks, timers and steps; completion confirms actual yield and retained portions, storage and reheat notes. Prepared food and logged nutrition retain immutable recipe snapshots. Nothing is logged until actual consumption is confirmed; Undo restores the portions and removes that log.
+
+My week proposes useful batch portions, real cooking windows and user-controlled filters. It reuses compatible ready food and shows unknown timing rather than inventing feasibility. Lock or explicitly swap a batch/meal and preview shopping impact. One-off shopping does not require a whole week. Shopping aggregates compatible identities/units, tracks partial already-have/bought coverage and retains purchase/contribution history; completed preparation does not ask for the same raw procurement again. Incompatible unit conversions, unknown yields and personal portions remain reviewable rather than guessed.
 
 The PWA declares an Android-compatible Web Share Target, with pasted-link fallback. OS sharing requires a later published and installed origin; this is not an Android APK or a claim that OS sharing works inside Preview.
 
@@ -39,7 +41,7 @@ Endpoints: `GET /api/health`, `GET /api/import/capabilities`, `POST /api/recipes
 
 The initial bank has 119 entries: the 100 highest-viewed Louis Howard videos with written recipes plus 16 original recipes and 3 condiments. Exact view counts are a dated snapshot, not live rankings. Source links/credits and locally bundled video thumbnails are retained. Reported macros remain distinct from confirmed per-serving values; “Macros” alone is not a serving basis. Ratings and prep suitability are user decisions, never invented storage-safety claims.
 
-Recipes, edits, plans, grocery checks, targets and consumption snapshots are stored on-device in IndexedDB, with a localStorage fallback. There is no server database. JSON backup/restore and recipe-bank imports support up to 32 MB. Export before clearing browser data or changing origins/devices. Browser session draft recovery is not cross-device sync. Newly imported source images may require a connection; saved recipe text and core planning/cooking remain offline.
+Recipes, edits, plans, ready batches, grocery coverage/history, targets and consumption snapshots are stored on-device in IndexedDB, with timestamped localStorage recovery checkpoints. Version-one backups remain supported through an additive experience extension. There is no server database. JSON backup/restore and recipe-bank imports support up to 32 MB. Export before clearing browser data or changing origins/devices; very large books can exceed the smaller localStorage recovery quota. Browser session draft recovery is not cross-device sync. Newly imported source images may require a connection; saved recipe text and core planning/cooking remain offline.
 
 After successful first download/worker activation, bundled recipes and images work without network. Private browsing, embedded Preview and device storage eviction can restrict persistence or offline behavior. Use a published/installable PWA in a supported browser for daily use and keep backups. The worker bypasses API responses and never caches credentials.
 

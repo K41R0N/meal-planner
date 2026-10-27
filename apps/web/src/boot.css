@@ -1,0 +1,11 @@
+@font-face{font-family:GeneralSans;src:url('/fonts/general-sans-400-normal.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:GeneralSans;src:url('/fonts/general-sans-700-normal.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
+.mealbook-opening{min-height:100svh;max-width:640px;margin:auto;padding:48px 24px;background:#f2f7f7;color:#16425a;font-family:GeneralSans,Arial,sans-serif}
+.mealbook-opening__brand{display:flex;align-items:center;gap:12px;font-size:28px;font-weight:700;letter-spacing:-.04em}
+.mealbook-opening p{line-height:1.6;max-width:55ch}.mealbook-opening__status{color:#5b7483;font-size:14px}
+.mealbook-skeleton{margin-top:36px;border:1px solid #c9d6d9;border-radius:22px;padding:20px;background:white}
+.mealbook-skeleton div{height:200px;border-radius:14px;background:#e3edef}.mealbook-skeleton span{display:block;height:18px;margin-top:20px;background:#e3edef;width:85%;border-radius:6px}.mealbook-skeleton span+span{width:60%}
+.mealbook-skeleton i{display:block;height:52px;background:#f4b743;border-radius:14px;margin-top:28px}
+.mealbook-opening--error button,.mealbook-recovery{min-height:48px;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid #16425a;padding:12px 18px;background:white;color:#16425a;font:inherit;margin:12px 12px 12px 0;cursor:pointer}
+.mealbook-opening--error button{background:#f4b743;font-weight:700;border-color:#f4b743}.mealbook-recovery{position:relative;overflow:hidden}.mealbook-recovery input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.mealbook-opening--error button:focus-visible,.mealbook-recovery:focus-within{outline:3px solid #16425a;outline-offset:4px}

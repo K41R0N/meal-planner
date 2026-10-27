@@ -15,6 +15,7 @@ import {
   type WeekPlan,
 } from './types';
 import { buildShoppingList } from './shopping';
+import { validateExperienceState } from './experience-validation';
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -522,7 +523,7 @@ const localDateRange = (weekStart: string, days: number): string[] => {
   });
 };
 
-const plan = (value: unknown, path: string, recipesById: Map<string, Recipe>): WeekPlan => {
+const plan = (value: unknown, path: string, recipesById: Map<string, Recipe>, archived = false): WeekPlan => {
   if (!isRecord(value)) return fail(path, 'must be a plan object.');
   const config = validatePlanConfig(value.config, `${path}.config`);
   const rawMeals = value.meals;
@@ -551,7 +552,7 @@ const plan = (value: unknown, path: string, recipesById: Map<string, Recipe>): W
     const recipeId = text(raw.recipeId, `${mealPath}.recipeId`);
     const linkedRecipe = recipesById.get(recipeId);
     if (!linkedRecipe) return fail(mealPath, `references missing recipe "${recipeId}".`);
-    if (!linkedRecipe.roles.includes(slot)) return fail(mealPath, `recipe "${recipeId}" is not eligible for ${slot}.`);
+    if (!archived && !linkedRecipe.roles.includes(slot)) return fail(mealPath, `recipe "${recipeId}" is not eligible for ${slot}.`);
     const servings = finiteNonNegative(raw.servings, `${mealPath}.servings`);
     if (servings <= 0) fail(`${mealPath}.servings`, 'must be positive.');
     const locked = raw.locked;
@@ -574,6 +575,14 @@ const consumption = (value: unknown, path: string): ConsumptionEntry => {
   if (!isRecord(value)) return fail(path, 'must be a consumption entry.');
   const servings = finiteNonNegative(value.servings, `${path}.servings`);
   if (servings <= 0) fail(`${path}.servings`, 'must be positive.');
+  const batchId = value.batchId === undefined ? undefined : text(value.batchId, `${path}.batchId`);
+  const batchUnits = value.batchUnits === undefined ? undefined : finiteNonNegative(value.batchUnits, `${path}.batchUnits`);
+  if (batchUnits !== undefined && batchUnits <= 0) fail(`${path}.batchUnits`, 'must be positive.');
+  if ((batchId === undefined) !== (batchUnits === undefined)) {
+    fail(path, 'must include both batchId and batchUnits when linked to prepared food.');
+  }
+  const useId = value.useId === undefined ? undefined : text(value.useId, `${path}.useId`);
+  if (useId !== undefined && batchId === undefined) fail(`${path}.useId`, 'requires a prepared-food batch link.');
   return {
     id: text(value.id, `${path}.id`),
     date: dateOnly(value.date, `${path}.date`),
@@ -582,6 +591,9 @@ const consumption = (value: unknown, path: string): ConsumptionEntry => {
     servings,
     nutritionSnapshot: nutrition(value.nutritionSnapshot, `${path}.nutritionSnapshot`),
     createdAt: timestamp(value.createdAt, `${path}.createdAt`),
+    ...(batchId === undefined ? {} : { batchId }),
+    ...(batchUnits === undefined ? {} : { batchUnits }),
+    ...(useId === undefined ? {} : { useId }),
   };
 };
 
@@ -618,7 +630,13 @@ export const validateState = (input: unknown): AppState => {
   const recipesById = new Map(recipes.map((item) => [item.id, item]));
   const rawPlans = input.plans;
   if (!Array.isArray(rawPlans)) return fail('Backup.plans', 'must be an array.');
-  const plans = rawPlans.map((item, index) => plan(item, `Backup.plans[${index}]`, recipesById));
+  const archivedPlanIds = new Set<string>();
+  if (isRecord(input.experience) && Array.isArray(input.experience.weeks)) {
+    for (const week of input.experience.weeks) {
+      if (isRecord(week) && typeof week.legacyPlanId === 'string' && week.id === week.legacyPlanId) archivedPlanIds.add(week.legacyPlanId);
+    }
+  }
+  const plans = rawPlans.map((item, index) => plan(item, `Backup.plans[${index}]`, recipesById, isRecord(item) && typeof item.id === 'string' && archivedPlanIds.has(item.id)));
   const planIds = new Set<string>();
   for (const item of plans) {
     if (planIds.has(item.id)) fail('Backup.plans', `contains duplicate id "${item.id}".`);
@@ -642,7 +660,8 @@ export const validateState = (input: unknown): AppState => {
       buildShoppingList(plan, recipes).map((item) => `${plan.id}:${item.key}`)),
   );
   for (const [key, value] of Object.entries(rawShoppingChecks)) {
-    if (!validShoppingCheckKeys.has(key)) {
+    const archivedIdentifier = [...archivedPlanIds].some(id => key.startsWith(`${id}:shopping:`));
+    if (!validShoppingCheckKeys.has(key) && !archivedIdentifier) {
       return fail(`Backup.shoppingChecks.${key}`, 'must reference a current item in a saved plan.');
     }
     if (value !== 'checked' && value !== 'owned' && value !== null) {
@@ -651,7 +670,7 @@ export const validateState = (input: unknown): AppState => {
     shoppingChecks[key] = value;
   }
 
-  return {
+  const state: AppState = {
     version: 1,
     recipes,
     plans,
@@ -660,5 +679,15 @@ export const validateState = (input: unknown): AppState => {
     targets: nutrition(input.targets, 'Backup.targets'),
     shoppingChecks,
     manualShopping: manualShopping(input.manualShopping, 'Backup.manualShopping', planIds),
+  };
+  if (input.experience === undefined) return state;
+  return {
+    ...state,
+    experience: validateExperienceState(input.experience, {
+      recipes,
+      plans,
+      logs,
+      validateRecipe: recipe,
+    }),
   };
 };

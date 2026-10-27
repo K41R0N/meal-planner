@@ -8,23 +8,24 @@
     "dev": "vite --host 0.0.0.0 --port 3000",
     "dev:server": "IMPORT_API_ENABLED=true tsx watch server/index.ts",
     "start": "NODE_ENV=production tsx server/index.ts",
-    "build": "tsc --noEmit && vite build && node scripts/generate-sw.mjs",
+    "build": "node scripts/prepare-fonts.mjs && tsc --noEmit && vite build && node scripts/generate-sw.mjs",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts"
   },
   "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "idb": "^8.0.3",
     "lucide-react": "^0.468.0",
-    "idb": "^8.0.3"
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@types/node": "^22.15.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
-    "@types/node": "^22.15.0",
-    "typescript": "~5.9.2",
-    "vite": "^6.3.6",
     "@vitejs/plugin-react": "^4.5.0",
-    "tsx": "^4.20.5"
+    "prettier": "3.7.4",
+    "tsx": "^4.20.5",
+    "typescript": "~5.9.2",
+    "vite": "^6.3.6"
   }
 }

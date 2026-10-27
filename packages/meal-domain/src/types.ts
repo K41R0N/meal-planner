@@ -1,3 +1,5 @@
+import type { ExperienceState } from './experience-types';
+
 export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'dessert' | 'drink' | 'side' | 'condiment';
 export const mealTypes: MealType[] = ['breakfast','lunch','dinner','snack','dessert','drink','side','condiment'];
 export type MacroKey = 'calories' | 'protein' | 'carbs' | 'fat' | 'fiber' | 'sugar' | 'sodium';
@@ -108,6 +110,9 @@ export interface ConsumptionEntry {
   servings: number;
   nutritionSnapshot: Nutrition;
   createdAt: string;
+  batchId?: string;
+  batchUnits?: number;
+  useId?: string;
 }
 export interface NutritionTotals {
   values: Record<MacroKey, number>;
@@ -125,4 +130,5 @@ export interface AppState {
   targets: Nutrition;
   shoppingChecks: Record<string, 'checked' | 'owned' | null>;
   manualShopping: Record<string, ManualShoppingItem[]>;
+  experience?: ExperienceState;
 }

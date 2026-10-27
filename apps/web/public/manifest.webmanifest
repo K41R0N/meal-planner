@@ -1,13 +1,13 @@
 {
-  "name": "Meal Planner — Personal Recipe Book",
-  "short_name": "Meal Planner",
+  "name": "Mealbook — Personal Recipe Book",
+  "short_name": "Mealbook",
   "id": "/",
-  "start_url": "/#week",
+  "start_url": "/#today",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#f6f3eb",
-  "theme_color": "#315f49",
+  "background_color": "#f2f7f7",
+  "theme_color": "#16425a",
   "description": "A private recipe book, weekly prep planner, grocery list and actual-portion food log. Your data stays on this device.",
   "share_target": {
     "action": "/",

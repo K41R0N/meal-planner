@@ -24,7 +24,7 @@ test('full-state backup preserves optional original source evidence',()=>{
 });
 test('Settings and state parser share a 32 MiB JSON policy with boundary checks',()=>{
  assert.equal(MAX_RECIPE_JSON_BYTES,33554432);assert.equal(recipeJsonFileFits(MAX_RECIPE_JSON_BYTES),true);assert.equal(recipeJsonFileFits(MAX_RECIPE_JSON_BYTES+1),false);assert.equal(recipeJsonFileFits(-1),false);
- const app=fs.readFileSync('apps/web/src/App.tsx','utf8'),settings=fs.readFileSync('apps/web/src/components/Settings.tsx','utf8');assert.match(app,/recipeJsonFileFits\(file.size\)/);assert.match(settings,/recipeJsonFileFits\(file.size\)/);
+ const app=fs.readFileSync('apps/web/src/useMealbook.ts','utf8'),settings=fs.readFileSync('apps/web/src/components/Settings.tsx','utf8');assert.match(app,/recipeJsonFileFits\(file.size\)/);assert.match(settings,/recipeJsonFileFits\(file.size\)/);
 });
 test('chunked oversized imports return the JSON 413 envelope without destroying the response socket',async()=>{
  const app=createApp({importEnabled:()=>true});const server=createServer((req,res)=>void app(req,res));server.listen(0,'127.0.0.1');await once(server,'listening');const address=server.address();assert.ok(address&&typeof address!=='string');
