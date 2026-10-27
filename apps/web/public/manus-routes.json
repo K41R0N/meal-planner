@@ -1,0 +1,10 @@
+{
+  "routes": [
+    {"path":"/","title":"Meal Planner"},
+    {"path":"/#week","title":"This Week"},
+    {"path":"/#recipes","title":"Recipe Book"},
+    {"path":"/#shopping","title":"Shopping"},
+    {"path":"/#log","title":"Food Log"},
+    {"path":"/#settings","title":"Personal Settings"}
+  ]
+}
