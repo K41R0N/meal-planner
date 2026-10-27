@@ -1,6 +1,8 @@
 # Meal Planner: Android-ready recipe book and weekly prep planner
 
-Status: approved personal-only implementation scope; first offline web/PWA build completed. The existing application and Storyteller Tactics reference remain unchanged. Recipe-source collection and standalone dataset preparation are separate from app implementation.
+**Historical implementation plan.** This file preserves the first personal-app scope and subsequent dated approvals. Its original planner-first opening, navigation and herb-green styling were superseded by the approved Today-first Atlantic/oyster/citrus experience. For current authority, read [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md), [the documentation index](docs/README.md) and [the commercial roadmap](docs/roadmap/commercial-release.md). Future commercial work is proposed, not implemented or authorized by this historical plan.
+
+Original status: approved personal-only implementation scope; first offline web/PWA build completed. Recipe-source collection and standalone dataset preparation were separate from app implementation.
 
 ## Repository and delivery boundaries
 

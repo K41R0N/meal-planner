@@ -4,6 +4,10 @@ A personal-first, Today-first recipe book, batch meal-prep planner, purchase-awa
 
 This evolves `K41R0N/meal-planner`. The original prototype is preserved in `src/` and `legacy/`, and its 16 recipes and 3 condiments are retained. Storyteller Tactics informed card/navigation patterns only; no purchased deck content or artwork is copied.
 
+## Start with the product and release documentation
+
+[The documentation index](docs/README.md) connects the [product truth](PRODUCT.md), [commercial strategy](STRATEGY.md), [decisions](docs/decisions/README.md), [commercial roadmap](docs/roadmap/commercial-release.md), six public competitor audits and production-readiness gates. Accounts, sync, subscriptions, native Android and numeric macro-goal fitting are planned, not delivered. [Source ingestion](docs/reference/source-ingestion.md), [portable export/collection tools](tools/recipe-import/README.md) and [the card-system reference](docs/reference/card-system.md) make the foundation independent of the private design repository.
+
 ## Run and build
 
 Requires Node.js 22, the pinned pnpm version, Python 3 and `yt-dlp` 2026.10.26 for online imports.
@@ -20,6 +24,8 @@ IMPORT_API_ENABLED=true pnpm exec tsx server/index.ts
 ```
 
 The last command serves `dist/` and the API on port 3000. For frontend editing only, `pnpm dev` starts Vite; it does not provide the import API. For backend editing after a client build, `pnpm dev:server` watches the Node service. The shipped container installs the Python extractor into `/opt/recipe-tools` and uses a scrubbed child environment with that path first. A plain local checkout uses the project’s `.venv/bin` after the container tool path, then falls back to system Python; no inherited provider secrets enter the child environment.
+
+For offline/core evaluation, start with `pnpm start` after building; import is disabled by default. [`.env.example`](.env.example) lists configuration names but contains no provider credentials. Enabling imports additionally needs server-side access to the documented compatible extraction service; metadata access alone is not a recipe parser. See [source ingestion](docs/reference/source-ingestion.md) for the exact credential boundary, fallback and clean-checkout limitations. No secrets should be placed in browser code, backups or Git.
 
 The live client is in `apps/web/`; shared catalog, planning, unit-safe shopping and nutrition logic is in `packages/meal-domain/`. `pnpm build` creates `dist/` and a versioned offline worker from actual assets. Serve over HTTPS for Android PWA installation. The development Vite server does not register the worker.
 
@@ -53,10 +59,12 @@ python3 scripts/prepare_recipe_bank.py path/to/louis-howard-top-100-recipes.json
 
 ## Development tools and later Android
 
-Native Compound Engineering and Impeccable plugins, explicit native packages of the pinned Awwwards/Jury skills, and two Vercel project skills are installed for the current cloud workspace. Version/source locks and an explicit `node scripts/setup-agent-tools.mjs` restoration command are included. Hooks, inline skill-shell execution, peers, Live mode and auto-shipping are disabled. See `docs/development-plugins.md` for verified installation and the available Anthropic account's native-model credit limitation. These are development tools, not runtime dependencies.
+Native Compound Engineering and Impeccable plugins, explicit native packages of the pinned Awwwards/Jury skills, and two Vercel project skills are installed for the current cloud workspace. Version/source locks and an explicit `node scripts/setup-agent-tools.mjs` restoration command are included. Hooks, inline skill-shell execution, peers, Live mode and auto-shipping are disabled. See `docs/development-plugins.md` for verified installation and execution boundaries. No native model output is used as evidence for the commercial documentation pass. These are development tools, not runtime dependencies.
 
 `PRODUCT.md` and `DESIGN.md` preserve the approved card-led identity. The shared domain/data contracts are reusable for a later React Native/Expo Android client with SQLite. Ollaya/Laya (or a tagging-focused alternative) remains optional and unhosted until a host is selected; core flows do not require it.
 
 ## Repository and release
 
-`meal-planner` remains the central source project. The Manus workspace is the build/Preview mirror; no current GitHub or Netlify deployment is replaced automatically. This phase does not publish or push to the user's GitHub. Review/apply the source branch and deliberately choose release/access controls later. A static-only Netlify build of `dist/` provides offline core flows but not the Node import API; the prepared managed deployment uses a static frontend plus a container API.
+`meal-planner` remains the central source project. The Manus workspace is a build/Preview mirror, not a replacement for the user's source ownership. A source push and a public release are distinct actions, and connected deployment triggers must be inspected rather than assumed inactive.
+
+The October 27 documentation approval supersedes the earlier no-push restriction: source integration into GitHub `main` is authorized **only while production remains unchanged**. [The integration gate](docs/release/source-integration.md) records the connected Netlify deployment and the presently unverified trigger/build-lock controls. Do not push until that gate passes; a `[skip ci]` marker alone does not establish complete deployment safety. Static Netlify output still provides only core offline flows, not the Node import API. No future provider, billing or public release is authorized by this documentation pass.

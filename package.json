@@ -10,7 +10,8 @@
     "start": "NODE_ENV=production tsx server/index.ts",
     "build": "node scripts/prepare-fonts.mjs && tsc --noEmit && vite build && node scripts/generate-sw.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/*.test.ts"
+    "test": "tsx --test tests/*.test.ts",
+    "docs:check": "node scripts/check-doc-links.mjs"
   },
   "dependencies": {
     "idb": "^8.0.3",

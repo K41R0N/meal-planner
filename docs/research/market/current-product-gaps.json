@@ -1,0 +1,10 @@
+{
+  "as_of": "2026-10-27",
+  "app_total_recipes": 119,
+  "imported_youtube_recipes": 100,
+  "normalized_calorie_and_protein": 65,
+  "normalized_all_four_macros": 55,
+  "source_yield_available": 58,
+  "all_four_and_yield": 42,
+  "plan_engine_current": "Eligibility filters + random selection weighted for favorites and ingredient overlap; not a numeric full-day macro/calorie goal optimizer."
+}
