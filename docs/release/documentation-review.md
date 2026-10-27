@@ -43,3 +43,7 @@ Final local verification on October 27, 2026:
 - First-party whitespace and new-document portable-path checks passed; ignored secrets/private caches/raw font binaries remained outside the source change set.
 
 **Main integration is not complete.** Two independent gates remain: deployment trigger/build-lock access is unverified, and public redistribution of bundled creator thumbnails needs permission or a public-safe replacement. The source branch and downloadable archive preserve the complete local foundation while the operator resolves those gates. No main push, public deployment, account setup, payment or inference hosting is claimed.
+
+## Later owner instruction — October 27, 2026
+
+After the earlier hold and handoff, the owner explicitly instructed **“Just push to main”**. This supersedes the source-integration prerequisites described above and authorizes the complete prepared source bundle. Follow the current [source integration record](source-integration.md), preserve remote history, use `[skip ci]`, and do not initiate app publication or change deployment settings. The earlier unresolved-rights observations remain commercial-release research, not a new confirmation requirement for this source push. Actual remote completion is verified by comparing the pushed main SHA with the local integration commit.

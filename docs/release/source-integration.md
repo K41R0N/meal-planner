@@ -1,49 +1,37 @@
-# Source integration without production deployment
+# Source integration and deployment separation
 
-Evidence date: October 27, 2026. The user authorizes integrating the completed application, research and documentation into **K41R0N/meal-planner `main`**, but does not authorize publishing the app or changing the production deployment. Preserve remote history and concurrent changes; never force-push.
+Updated October 27, 2026. The user explicitly directed: **“Just push to main”**, after reviewing the prepared app, documentation and the assistant's proposed holds. This instruction authorizes pushing the **complete existing source bundle** to `K41R0N/meal-planner` main and supersedes the earlier access/asset conditions imposed for this source integration. No additional confirmation is required for this push.
 
-## Mapping observed
+Source publication is not a commercial app release. No account, billing, model hosting, deployment-settings change or manual app publication is authorized by this instruction. Preserve remote history and concurrent changes; never force-push.
 
-- Source: public GitHub repository `K41R0N/meal-planner`; fetched remote `main` was `01eacc21110e39f438a904f328debd57bbd3207f` (the original prototype/Netlify configuration).
-- Prepared application: local `feature/personal-mealbook` holds the three previously approved implementation commits. This documentation pass builds on those commits; it is not merely a docs change relative to remote `main`.
-- Connected production site: Netlify project `healthy-meal-planning`, site ID `63e3c8ee-25d8-4c2a-ae91-2e71ea460b3c`.
-- Pre-integration published deploy: `67b282be2b5c04000874b707`, source SHA `01eacc21110e39f438a904f328debd57bbd3207f`, published February 17, 2025, state `ready`.
-- Production URL: `https://healthy-meal-planning.netlify.app`.
-- GitHub Actions discovery returned zero workflows. This does not establish that there are no installed GitHub App, webhook, build-hook or other external deploy triggers.
+## Repository and existing deployment
 
-## Access limitations and present gate
+- Central source: public GitHub repository `K41R0N/meal-planner`.
+- Remote main before integration: `01eacc21110e39f438a904f328debd57bbd3207f`.
+- Prepared application commits: `258cc74`, `c7e867d`, `39d4abe`.
+- Prepared documentation commit: `d9b2f67`; final authorization/status corrections follow it.
+- Connected legacy Netlify site: `healthy-meal-planning`, ID `63e3c8ee-25d8-4c2a-ae91-2e71ea460b3c`.
+- Last observed published deploy: `67b282be2b5c04000874b707`, state `ready`, source SHA `01eacc21110e39f438a904f328debd57bbd3207f`.
 
-The enabled Netlify connector can read the site/deploy but did not expose build pause/lock configuration. The Netlify browser settings page requires login. The GitHub integration returned `403 Resource not accessible by integration` for repository webhooks. Consequently, active trigger coverage and a production build lock are **not verified**. The source push is blocked until the operator can inspect and protect those triggers.
+The existing public Netlify prototype and the unreleased Mealbook replacement/commercial service are distinct. The source bundle preserves the full working app, research recipe bank, cards/design references, research and commercial-release documentation without adding private purchased deck content, credentials, personal records or restricted raw font binaries.
 
-There is a separate **public-source distribution gate**: the prepared application branch includes 100 creator-thumbnail binaries with unresolved redistribution rights. This GitHub repository is public, so pushing the branch itself distributes those assets even if Netlify does not deploy. Before public `main` integration, either document permission for each restricted asset/content class or prepare a public-safe version with unapproved thumbnails removed and neutral existing card fallbacks, retaining source attribution and the permitted recipe facts. Review source-derived seed expression separately. The complete research fixture remains safely local while this gate is unresolved; credits alone do not pass it.
+## Integration method
 
-Do not interpret the unchanged pre-push deployment as proof a later `main` push is safe. Do not mark the main integration delivered merely because a local commit exists.
+Fetch remote main; verify ancestry; integrate normally if it changed; run affected checks; fast-forward local main to the complete approved source and perform a normal non-force push. Include **`[skip ci]`** in the final commit message, Netlify's documented Git-triggered deployment-skip mechanism. Do not invoke a deploy/publish tool, change Netlify settings or alter repository integrations.
 
-## Skip-build mechanisms: useful but not sufficient here
+Read back the remote SHA after the push and compare with local main. Read the current Netlify published deploy ID where available and report its observed state accurately. A skip marker addresses the documented Git-triggered flow; it is not a claim that all unknown third-party triggers have been independently audited.
 
-Netlify documents `[skip ci]` in the final commit message to suppress Git-triggered deployment of a pushed commit set. Its `build.ignore` command can also stop a Git build when it exits zero. However, ignore commands do not cancel build-hook-triggered builds, and neither mechanism proves an unrelated external deployment integration is disabled. [1] [2]
+## Historical hold and continuing release work
 
-No Netlify build settings, repository hooks, public deployment or manual publish action has been changed by this documentation pass. A skip marker may be a defense in depth after trigger mapping—not a substitute for this gate. Do not add a permanent ignore rule or silently disable someone else's deployment workflow.
+The earlier documentation pass held the push because the integration could not inspect GitHub webhooks/Netlify build locks and creator-thumbnail redistribution rights were not established. The owner subsequently instructed proceeding with the complete source bundle. These are therefore **not pending source-push blockers**. Do not reopen the superseded hold or convert a historical review note into a new approval requirement.
 
-## Procedure when access is available
+The owner’s instruction does not establish third-party copyright permissions or license the research seed as a paid public catalog. The rights inventory, source-platform constraints and commercial release gates remain important future product work in [provenance](../reference/provenance-and-licenses.md) and [production readiness](production-readiness.md), not reasons to refuse this authorized source operation.
 
-1. Have the release owner inspect repository deployment integrations and the Netlify site's branch mapping, active build hooks and pause/lock/auto-publication controls. Record other connected production targets or explicitly confirm none.
-2. Pause/lock the relevant automatic production pathway through the authorized control. A mere successful config write is not evidence that queued work cannot publish; inspect pending deploys and document how they are handled. Do not cancel/delete unrelated work without approval.
-3. Record current remote `main`, active production deploy IDs/source SHAs and healthy response before pushing. If remote `main` changed, fetch and integrate normally while preserving both histories, then rerun affected checks.
-4. Confirm the final change set excludes secrets, private/purchased reference assets, raw restricted font binaries and personal state. Pass the separate public-source distribution gate above; unknown creator-thumbnail/content rights cannot be resolved merely by keeping the app undeployed. Keep the complete research seed local until permission or a public-safe fixture is approved. A permitted technical fixture is still not permission to launch a paid public catalog.
-5. Under the verified protected pathway, fast-forward or merge the approved branch into local `main`; use an attributed commit, with `[skip ci]` on the final commit if applicable; perform a normal non-force `git push origin main`.
-6. Read back GitHub's remote SHA and ancestry. Confirm Netlify's published deploy ID/source SHA and other mapped production targets remain identical and healthy, with no pending automatic publication that would defeat the restriction.
-7. Save the verification in the integration record. Leave build/publication settings in the deliberately agreed state; resuming them is not authorization to deploy the new code. Actual publication requires a separately approved release.
+## Existing verification
 
-If any required control cannot be inspected or the state is ambiguous, retain the local branch and deliver its exact SHA and source bundle. Ask for the minimum login/admin action required; do not turn an inability to verify into implied permission.
+The prepared source passed 87 application regression tests, strict TypeScript, production build, 100 repository-local documentation targets and fresh SQLite export integrity. No new runtime feature is added by the final authorization/status correction. The [documentation review](documentation-review.md) preserves the earlier findings chronologically; this document records the later controlling instruction.
 
 ## References
 
-[1]: https://www.netlify.com/blog/2018/10/08/get-more-control-over-netlify-continuous-deployment-with-deploy-skipping/ "Netlify Git commit skip marker"
-[2]: https://docs.netlify.com/build/configure-builds/ignore-builds/ "Netlify ignore command and build-hook exception"
-
-## Documentation-pass completion record
-
-At the final read-only check on October 27, the Netlify connector still reported published/current deploy **`67b282be2b5c04000874b707`**, state `ready`. No source push or deployment action was performed. Local verification passed: 87 regression tests, TypeScript, production build, documentation destinations and fresh SQLite export integrity. The local source bundle contains the completed app plus this documentation layer; it is not a claim of completed public `main` integration.
-
-The next operator action is to select a permitted/public-safe source-asset treatment and obtain access to inspect/protect deployment controls. See [the scoped review](documentation-review.md) for the findings and applied corrections.
+- [Netlify commit-message deployment skipping](https://www.netlify.com/blog/2018/10/08/get-more-control-over-netlify-continuous-deployment-with-deploy-skipping/)
+- [Netlify ignored builds and build-hook limitations](https://docs.netlify.com/build/configure-builds/ignore-builds/)
