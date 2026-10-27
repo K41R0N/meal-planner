@@ -28,6 +28,12 @@ The dated [15-product benchmark](docs/research/market/benchmark.csv) shows paid 
 
 The proposed differentiation is a **reliable capture-to-prep-to-shop-to-eat loop using the person's recipes**, not merely collecting those features. Exact unknowns in competitors' imported-library planning and technical stacks are not proof of missing functionality. The [market report](docs/research/market/commercial-strategy.md) and [six deeper audits](docs/research/competitors/production-patterns.md) retain sources and uncertainty.
 
+### Bring your assistant, keep a useful food record
+
+Approved October 27: make that same loop accessible to the person's chosen MCP-capable assistant, while Mealbook owns data correctness, fetching, records and safe actions. The default agent path does not embed chat, collect model-provider keys or resell inference. Candidate positioning: **Your recipes and your assistant. A prep week you can trust, shop and actually cook.** This is a future offering, not a delivered connector.
+
+[Agent-integration research](docs/research/agent-integrations/README.md) found commercial and open-source overlap, including Pantry Aide and Mealie with its MCP. MCP/provider choice alone is not a moat. The distinction to test is reviewed source evidence and recipe versions carried through deterministic plan/grocery changes, actual prepared food and user-confirmed intake. Benchmark correction effort, traceability, successful second weeks, approval/recovery and real app/tool parity before claiming “most agent-friendly.” Claude currently offers the broader documented consumer custom-connector path; ChatGPT full custom writes have narrower web/workspace eligibility. Market only tested client/plan/platform combinations.
+
 ## Free, paid and trust
 
 The recommended Free tier supports a personal book, manual planning, groceries, cooking, actual logging, correction and export. Pro earns its price through proven automation and optional sync. Import allowances, trial length and prices are test proposals, not approved live billing: initially evaluate $7.99/month or $49.99/year, 5 successful assisted imports/month Free and 50/month Pro, with a 14-day trial. Competing free allowances and cost-to-serve may justify changing them. [Subscriptions](docs/commercial/subscriptions.md) owns the proposed entitlement and expiry rules.

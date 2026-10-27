@@ -34,6 +34,16 @@ A second week must reuse existing prepared food without making historical cookin
 
 **Gate:** Android physical-device and interrupted-network tests, source/backup migration/restore, no cross-user data leakage, purchase/expiry/refund webhooks and support exercises pass in staging. Production owner, privacy documents, publisher accounts and budget limits exist before inviting paid users. Owner roles: mobile/backend engineering, operations, billing and privacy.
 
+## 3A — Agent-friendly shared workspace and MCP
+
+**Approved direction, not implemented:** Users bring a supported assistant; Mealbook provides correctness-first source/data/actions rather than embedded chat or inference-key storage. The ordinary web and later Android cards remain the workspace. See [architecture](../architecture/agents/README.md), [tool contract](../reference/agents/tool-contract.md), [permissions](../architecture/agents/permissions-and-trust.md) and [future implementation plan](../plans/2026-10-27-1205-feat-agent-friendly-mealbook-plan.md).
+
+First extract the shared command/query boundary and prove a real paired local app/tool loop; this can begin alongside stages 1–2. The prototype cannot read arbitrary private IndexedDB or claim a separate fixture book is the app. Split source fetching from external draft interpretation and deterministic validation. Account-backed remote MCP waits for stage 3 ownership, migration and sync: web/Android/MCP must share the same durable versions and stock, not duplicate business rules.
+
+Add OAuth and app-enforced approved changes, narrow standing grants, exact revisions/idempotency and explicit actual-cooking/eating/destructive confirmations. Test supported client capabilities from [dated research](../research/agent-integrations/README.md): Claude currently has the broader documented consumer custom-connector path, while full ChatGPT custom writes are narrower and web/workspace governed. Optional public-directory/rich app UI is a later distribution path, not an assumed entitlement for every consumer or mobile client.
+
+**Gate:** An authorized source-to-reviewed-recipe-to-confirmed-week-to-shopping scenario is visible in both the real app and tested tool clients; UI and agent changes reconcile correctly. Isolation, revocation, stale approvals, retries, concurrent stock, unknown evidence and interruption have tests. Shared quota/job state and measured cost survive process/worker loss as in [the scaling plan](../architecture/agents/scaling-and-operations.md). Core access/export and the manual food loop remain usable without inference or Pro. No claim of “most agent-friendly” until a comparable Mealie/MCP and target-user outcome test supports it. Ollaya remains an independent optional ranking/labeling experiment.
+
 ## 4 — Closed commercial pilot before broad marketing
 
 **Proposed:** Recruit 30 qualified, permission-based testers through creators or communities that allow participation. Spend two weeks observing the actual loop, then offer a transparently priced, cancellable 14-day paid experiment. The proposed team decision rules from the research are 20 usable weeks, 12 second weeks, eight actual payments and five first renewals by roughly week six. These are directional thresholds for a small selected sample, not forecasts.

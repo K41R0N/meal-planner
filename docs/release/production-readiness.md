@@ -35,6 +35,19 @@ Proposed recovery objectives are RPO no greater than 15 minutes for durable acco
 
 Events must be structured, tenant-scoped, and content-minimized: authentication/session changes; API authorization and quota decisions; sync accepted/rejected/conflict/tombstone counts; job queued/started/finished/failed/cost; backup/restore/deletion milestones; billing event receipt/verification/reconciliation; and deployment/config changes. Alert on error budget burn, queue age, authorization anomalies, deletion failures, webhook backlog, restore failures, and abnormal unit cost. Do not log recipe text, nutrition logs, tokens, payment payloads, or raw sources merely to make dashboards convenient.
 
+## Agent service readiness — Future evidence gates
+
+The [agent architecture](../architecture/agents/README.md) and [future plan](../plans/2026-10-27-1205-feat-agent-friendly-mealbook-plan.md) are documented, not a running MCP/account service. Before public personal-data access or writes, prove shared app/API/tool records, explicit migration consent, OAuth discovery/audience/scope handling, ownership on every handle/job/cache, client revoke and source-text containment. Tool hints and provider “always allow” do not replace the [application approval contract](../architecture/agents/permissions-and-trust.md).
+
+- [ ] Tested client/plan/platform/protocol matrix and truthful connection/upgrade copy, including ChatGPT read/fetch versus full custom-write limits.
+- [ ] Real bidirectional UI/tool record parity, owned deep links and local-bridge disconnection; no fixture-only success or supposed remote IndexedDB access.
+- [ ] Specific approval, changed-payload/stale-revision rejection, narrow grant ceilings and one-use actual cooking/eating/destructive confirmation.
+- [ ] Durable idempotency and multi-client stock/quantity invariants, shared quotas/jobs and revoke/cancel/worker-loss recovery.
+- [ ] Source acquisition versus external draft validation without provider model keys in the new path; disclosed data sent to the user's assistant.
+- [ ] Content-minimized audit/history, safe export/read access under Free/expiry, staged write flags and measured service cost/recovery.
+
+The ordinary manual app remains useful when the assistant/client/provider is unavailable. [Agent service objectives](../architecture/agents/scaling-and-operations.md) cover end-to-end tool acknowledgement/read hypotheses separately from the application API latency goals above; no SLO or compatibility test is claimed achieved by this documentation pass.
+
 ## Required runbooks and rollback behavior — Proposed
 
 For **API or job outage**, on-call disables expensive job admission, preserves local-first core behavior, posts status, drains/retries only idempotent work, and documents client recovery. For **data restore**, the incident lead freezes writes, selects the recovery point, restores to isolated infrastructure, validates ownership/index/operation invariants, reconciles accepted operations after the recovery point, obtains approval, then reopens writes. A quarterly restore exercise must demonstrate the proposed RPO/RTO with evidence.

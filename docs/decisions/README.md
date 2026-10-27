@@ -22,6 +22,12 @@ Updated October 27, 2026. This registry preserves **why** the app has its presen
 
 **D009 — Optional self-hosted decisions.** Evaluate Ollaya/Laya for tagging and ranking behind a replaceable adapter. Core use cannot depend on it; exact arithmetic, medical/allergy/storage claims and recipe facts are not delegated to it. Model installation and hosting remain unapproved. Owner: [decision models](../architecture/decision-models.md).
 
+**D010 — Users bring reasoning; Mealbook owns correctness.** Approved October 27: agent-friendly web/data actions plus a future MCP connector, rather than an embedded chatbot or collection of users' inference API keys. Users use their own supported assistants; Mealbook focuses on fetching, evidence, validated operations and durable food records. Optional Ollaya is no prerequisite. Owner: [agent architecture](../architecture/agents/README.md).
+
+**D011 — One real workspace and explicit control.** Approved direction: authenticated remote MCP over the shared application API, with a real local development bridge and a scaling plan. No remote reading of private IndexedDB or separate fixture-backed “app.” Reads/previews stay within scopes; saves/plan/shop writes need specific approval or narrow standing grants; actual cooking/eating and destructive actions always need explicit confirmation. Owner: [permissions and trust](../architecture/agents/permissions-and-trust.md).
+
+**D012 — Document first and push source, not a deployed MCP.** The six October 27 approvals authorize current-client/competition research, tool/safety/scaling and agent-friendly UI design, canonical documentation updates and normal main integration with the existing skip-deploy safeguard. They do not implement or publish a connector, auth/sync system, model host or public endpoint. Owners: [agent plan](../plans/2026-10-27-1205-feat-agent-friendly-mealbook-plan.md), [source integration](../release/source-integration.md).
+
 ## Proposed commercial decisions, not implementation approvals
 
 **P001 — Free ownership plus paid automation.** Free book/manual loop/export; Pro numerical planning, time-aware adaptation and optional sync. Exact quotas and grandfathering require product approval. Current personal functionality remains unchanged by this documentation pass. Owner: [subscriptions](../commercial/subscriptions.md).

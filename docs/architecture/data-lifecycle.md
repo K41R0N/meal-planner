@@ -30,6 +30,12 @@ The model has no application tools and receives source text as untrusted data. C
 
 **Development tools:** Native plugin packages are installed, but no native model output is used as evidence for this documentation pass. Planning and review guidance was applied with host-side research, file checks and scoped reviewers. Development credentials or machine-specific account information are not part of the application model contract.
 
+## Proposed user-owned assistant path
+
+The [approved MCP direction](agents/README.md) is not the current managed extractor. Mealbook would send requested, bounded recipe/source/goal context to the user's authorized assistant client, which supplies interpretation and reasoning under its own account. Mealbook would not collect provider model keys or retain full conversation state. The assistant/provider can retain received tool data under its own terms; connection consent must disclose this and must not claim zero retention or end-to-end encryption.
+
+Future owned source handles, review drafts, job inputs and change previews need explicit purpose/expiry/export/delete behavior. Approval/grant records and minimal action history need their own restricted, reviewed retention rules; revoking a client denies further access/pending commits but cannot delete copies already shared to a provider. Current app data must not be uploaded automatically when connecting: local pairing or explicit account migration establishes which real workspace is shared. These proposed records do not exist on the current server. [Permissions](agents/permissions-and-trust.md) and [scaling](agents/scaling-and-operations.md) own their authorization and operational constraints.
+
 ## Proposed production retention policy — not approved or active
 
 The final policy needs a purpose, lawful/consent basis where applicable, retention trigger/period, location/region, export coverage, deletion behavior, backup treatment and accountable owner for each class. Suggested engineering defaults to evaluate are:

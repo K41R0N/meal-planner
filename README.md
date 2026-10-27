@@ -8,6 +8,8 @@ This evolves `K41R0N/meal-planner`. The original prototype is preserved in `src/
 
 [The documentation index](docs/README.md) connects the [product truth](PRODUCT.md), [commercial strategy](STRATEGY.md), [decisions](docs/decisions/README.md), [commercial roadmap](docs/roadmap/commercial-release.md), six public competitor audits and production-readiness gates. Accounts, sync, subscriptions, native Android and numeric macro-goal fitting are planned, not delivered. [Source ingestion](docs/reference/source-ingestion.md), [portable export/collection tools](tools/recipe-import/README.md) and [the card-system reference](docs/reference/card-system.md) make the foundation independent of the private design repository.
 
+The approved [agent-friendly architecture](docs/architecture/agents/README.md) adds a future shared API/MCP path for users' own assistants, with source validation, app-enforced approvals, real data/UI parity and a [staged scaling plan](docs/architecture/agents/scaling-and-operations.md). [Client research](docs/research/agent-integrations/README.md) records current Claude/ChatGPT constraints and existing competition. No MCP endpoint, account store or new provider-key path has been built by this documentation pass.
+
 ## Run and build
 
 Requires Node.js 22, the pinned pnpm version, Python 3 and `yt-dlp` 2026.10.26 for online imports.

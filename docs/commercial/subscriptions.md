@@ -20,6 +20,14 @@ Examples: a Free user may be allowed a remaining reviewed import but denied bulk
 
 Existing offline, unsigned-in local use remains a separate local mode, not a disguised subscription tier. A future account sign-in must explicitly import/partition local data as described in [data and sync](../architecture/data-and-sync.md).
 
+## Agent access and service value — Proposed
+
+The [approved agent direction](../architecture/agents/README.md) charges for Mealbook value, not inference the user's assistant supplies. The proposed Free account may connect supported assistants for bounded book/context reads, source review, safe manual-loop writes and ordinary planning/shopping operations within its service allowance. Basic owned-data access/export and corrections cannot be made hostage to Pro. Pro may add deterministic target fitting, durable multi-device sync, higher source-job capacity, bulk work and stronger repeat-week adaptation; no hosted LLM or unlimited agent calls is bundled by implication.
+
+External reasoning can compose good plans under Free. That is legitimate value, not a reason to block a user's own assistant to force purchase. Pro must earn payment through measured service/optimizer/reliability value. The same server entitlement and quota policy applies to UI and MCP; tool-call splitting cannot defeat account-level source/grant limits. Count cost and successful-import usage separately: failed/blocked/cancelled requests should not consume the proposed paid successful-save allowance, but remain subject to bounded abuse/rate budgets.
+
+The five/50 assisted-import allowances remain hypotheses. Define whether they count source acquisition, reviewed saved recipes or bulk jobs before pricing; an externally parsed draft does not consume Mealbook model tokens. Provider subscriptions, external API usage and client eligibility are separate from Mealbook Pro. A Pro purchase cannot unlock ChatGPT custom writes on an unsupported plan/platform. [Client eligibility](../research/agent-integrations/README.md) must appear before upgrade/connection promises.
+
 ## Store state and user experience — Proposed
 
 The entitlement state machine must distinguish `trial_active`, `active`, `cancelled_active_until_expiry`, `grace`, `account_hold`, `expired`, `pending`, `refunded_or_revoked`, and `unknown`. Cancellation keeps Pro only through the verified period end. A pending transaction has no Pro access until the server verifies it. A verified renewal restores/continues access. A refund or revocation removes Pro services at the verified effective time while preserving the Free/read/export promise.

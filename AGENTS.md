@@ -8,6 +8,8 @@ Today is the default opening action. Recipes have a shared cross-platform card i
 
 Use `apps/web/` for the active client and `packages/meal-domain/` for reusable deterministic logic. `src/` and `legacy/` retain the original prototype. Source acquisition and the existing extraction adapter are in `server/`. The private `pip-decks-app` repository is not a dependency and purchased deck content/artwork must not be copied.
 
+The October 27 agent-friendly direction is documented in `docs/architecture/agents/README.md` and `docs/reference/agents/tool-contract.md`. Users' assistants supply reasoning; Mealbook owns evidence, quantities, records and action control. Do not implement a disconnected MCP database, imply remote access to private IndexedDB, collect provider model keys or hide mutations as read tools. Real app/UI/MCP parity, scoped authorization, exact approvals, revisions and idempotency precede agent writes. These documents and their future plan do not authorize code implementation or publication by themselves.
+
 ## Keep evidence and approvals distinct
 
 New decisions belong in `docs/decisions/README.md` with date, status, rationale and owning contract. Research belongs in `docs/research/`, with URLs, observation date and clear documented/untested/unknown labels. Do not infer competitors' private stacks or paid adoption from downloads, ratings or pricing.
