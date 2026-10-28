@@ -10,7 +10,7 @@ GitHub Issues on `K41R0N/meal-planner` is the only tracker. The repository is pu
 
 - **Milestones** are the roadmap's stages: S0, S1, S2, S3, S3A, S4 and S5, each with the roadmap's own gate, mapped to evals in [milestones](milestones.md). They have no dates. A milestone closes only when its gate review passes.
 - **Epics** (`type:epic`) are one per milestone. The epic mirrors the gate as a checklist and parents the milestone's issues as sub-issues. Issue titles start with the milestone key, e.g. `[S1] Property test: unknown nutrition never becomes zero`; unscheduled ideas and operating work have no prefix.
-- **Labels** carry type, track, status and priority. Labels and milestones are defined in [`.github/pm/board.json`](../../.github/pm/board.json) and created by the `PM board sync` workflow, so the board structure is reviewed like code. The workflow creates and updates; it never deletes. It also assigns any open `[Sx]` issue without a milestone to milestone Sx, on push and whenever an issue is opened or edited.
+- **Labels** carry type, track, status and priority. Labels and milestones are defined in [`.github/pm/board.json`](../../.github/pm/board.json) and applied by the `PM board sync` workflow only from `main`, so the board structure is reviewed like code before it changes the repository. The workflow creates and updates; it never deletes. It also assigns any open `[Sx]` issue without a milestone to milestone Sx, whenever an issue is opened or edited.
 - **Rolling-wave detail.** The current milestones carry implementation-sized issues. Later milestones carry coarse issues that are split when their milestone becomes current. Planning far ahead in detail produces work nobody reads again.
 
 | Label family | Values | Meaning |

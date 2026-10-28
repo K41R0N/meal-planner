@@ -1,12 +1,14 @@
 name: PM board sync
 
-# Creates or updates the labels and milestones declared in .github/pm/board.json
+# On pushes to main, creates or updates the labels and milestones declared in .github/pm/board.json
 # (milestones mirror the roadmap stages; `aliases` rename an existing milestone in place),
 # closes a `retired` milestone only once it has no open issues, then assigns open issues
 # titled "[S<stage>] ..." without a milestone to that stage's milestone.
 # Never deletes, renames unrelated items or overrides a milestone already set on an issue.
 on:
   push:
+    # Only the reviewed board definition on the default branch may change repository metadata.
+    branches: [main]
     paths:
       - .github/pm/board.json
       - .github/workflows/pm-sync.yml
@@ -65,9 +67,10 @@ jobs:
             for (const key of board.retired ?? []) {
               const retired = milestonesByKey.get(key);
               if (!retired || retired.state === 'closed') continue;
-              const { data } = await github.rest.issues.getMilestone({ owner, repo, milestone_number: retired.number });
-              if (data.open_issues > 0) {
-                changes.push(['milestone', `${retired.title} (#${retired.number})`, `not retired: ${data.open_issues} open issues`]);
+              // The milestone's open_issues counter can lag after issues move; list the issues instead.
+              const { data: open } = await github.rest.issues.listForRepo({ owner, repo, milestone: String(retired.number), state: 'open', per_page: 1 });
+              if (open.length > 0) {
+                changes.push(['milestone', `${retired.title} (#${retired.number})`, 'not retired: open issues remain']);
                 continue;
               }
               await github.rest.issues.updateMilestone({ owner, repo, milestone_number: retired.number, state: 'closed' });

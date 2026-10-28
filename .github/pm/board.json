@@ -1,5 +1,5 @@
 {
-  "$comment": "Board structure for K41R0N/meal-planner. Synced by .github/workflows/pm-sync.yml on push. Milestones mirror the stages of docs/roadmap/commercial-release.md (map: docs/operating/milestones.md) and match on the key before the first space of the title; `aliases` lets an existing milestone be renamed in place. A `retired` milestone is closed only once it has no open issues. The sync never deletes.",
+  "$comment": "Board structure for K41R0N/meal-planner. Synced by .github/workflows/pm-sync.yml from pushes to main only. Milestones mirror the stages of docs/roadmap/commercial-release.md (map: docs/operating/milestones.md) and match on the key before the first space of the title; `aliases` lets an existing milestone be renamed in place. A `retired` milestone is closed only once it has no open issues. The sync never deletes.",
   "labels": [
     { "name": "type:epic", "color": "5319e7", "description": "One per roadmap stage; mirrors the stage gate and parents its issues" },
     { "name": "type:feature", "color": "1d76db", "description": "User- or owner-observable change" },
