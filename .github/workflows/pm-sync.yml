@@ -1,0 +1,63 @@
+name: PM board sync
+
+# Creates or updates the labels and milestones declared in .github/pm/board.json.
+# Never deletes, renames unrelated items or changes milestone state.
+on:
+  push:
+    paths:
+      - .github/pm/board.json
+      - .github/workflows/pm-sync.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: pm-board-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const board = JSON.parse(fs.readFileSync('.github/pm/board.json', 'utf8'));
+            const { owner, repo } = context.repo;
+            const changes = [];
+
+            const labels = await github.paginate(github.rest.issues.listLabelsForRepo, { owner, repo, per_page: 100 });
+            const labelsByName = new Map(labels.map((label) => [label.name.toLowerCase(), label]));
+            for (const label of board.labels) {
+              const existing = labelsByName.get(label.name.toLowerCase());
+              if (!existing) {
+                await github.rest.issues.createLabel({ owner, repo, ...label });
+                changes.push(['label', label.name, 'created']);
+              } else if (existing.name !== label.name || existing.color !== label.color || (existing.description ?? '') !== label.description) {
+                await github.rest.issues.updateLabel({ owner, repo, name: existing.name, new_name: label.name, color: label.color, description: label.description });
+                changes.push(['label', label.name, 'updated']);
+              }
+            }
+
+            const milestones = await github.paginate(github.rest.issues.listMilestones, { owner, repo, state: 'all', per_page: 100 });
+            const milestonesByKey = new Map(milestones.map((milestone) => [milestone.title.split(' ')[0], milestone]));
+            for (const milestone of board.milestones) {
+              const existing = milestonesByKey.get(milestone.key);
+              if (!existing) {
+                const created = await github.rest.issues.createMilestone({ owner, repo, title: milestone.title, description: milestone.description });
+                changes.push(['milestone', `${milestone.title} (#${created.data.number})`, 'created']);
+              } else if (existing.title !== milestone.title || (existing.description ?? '') !== milestone.description) {
+                await github.rest.issues.updateMilestone({ owner, repo, milestone_number: existing.number, title: milestone.title, description: milestone.description });
+                changes.push(['milestone', `${milestone.title} (#${existing.number})`, 'updated']);
+              }
+            }
+
+            core.summary.addHeading('PM board sync');
+            if (changes.length) core.summary.addTable([[{ data: 'Kind', header: true }, { data: 'Name', header: true }, { data: 'Change', header: true }], ...changes]);
+            else core.summary.addRaw('No changes; the board matches board.json.');
+            await core.summary.write();

@@ -1,0 +1,40 @@
+{
+  "$comment": "Board structure for K41R0N/meal-planner. Synced by .github/workflows/pm-sync.yml on push; the sync creates and updates, never deletes. Milestones match on the key before the first space of the title. Gates live in docs/operating/milestones.md.",
+  "labels": [
+    { "name": "type:epic", "color": "5319e7", "description": "One per milestone; mirrors the exit gate and parents its issues" },
+    { "name": "type:feature", "color": "1d76db", "description": "User- or owner-observable change" },
+    { "name": "type:eval", "color": "0e8a16", "description": "Builds or runs an eval from docs/evals/README.md" },
+    { "name": "type:research", "color": "c5def5", "description": "Gathers evidence per docs/growth/README.md" },
+    { "name": "type:decision", "color": "d93f0b", "description": "The owner chooses; agents prepare options and evidence" },
+    { "name": "type:bug", "color": "b60205", "description": "Behavior differs from an owning contract" },
+    { "name": "type:chore", "color": "cfd3d7", "description": "Tooling, config or maintenance with no product change" },
+    { "name": "track:product", "color": "bfdadc", "description": "Product behavior and flows" },
+    { "name": "track:domain", "color": "bfdadc", "description": "packages/meal-domain logic and data contracts" },
+    { "name": "track:design", "color": "bfdadc", "description": "Card system, interaction and accessibility" },
+    { "name": "track:agent", "color": "bfdadc", "description": "Shared commands, MCP and assistant access" },
+    { "name": "track:platform", "color": "bfdadc", "description": "Android, accounts, sync, hosting" },
+    { "name": "track:growth", "color": "bfdadc", "description": "ICP, positioning, funnel and growth monitoring" },
+    { "name": "track:ops", "color": "bfdadc", "description": "Board, CI, evals and operating loops" },
+    { "name": "status:needs-plan", "color": "fbca04", "description": "Needs a plan or sharper acceptance criteria before work" },
+    { "name": "status:ready", "color": "0e8a16", "description": "Meets the definition of ready" },
+    { "name": "status:in-progress", "color": "1d76db", "description": "Being worked; WIP limit is three" },
+    { "name": "status:in-review", "color": "5319e7", "description": "Pull request or gate packet awaiting review" },
+    { "name": "status:blocked", "color": "b60205", "description": "Waiting on a named dependency" },
+    { "name": "status:needs-owner", "color": "d93f0b", "description": "Waiting on an owner decision or owner-only action" },
+    { "name": "priority:now", "color": "b60205", "description": "This cycle" },
+    { "name": "priority:next", "color": "fbca04", "description": "After the current cycle" },
+    { "name": "priority:later", "color": "c2e0c6", "description": "Parked, with the reason in the issue" },
+    { "name": "regression", "color": "b60205", "description": "A shipped capability fell below its eval threshold" },
+    { "name": "owner-wish", "color": "f9d0c4", "description": "Stated by the owner; no milestone covers it yet" }
+  ],
+  "milestones": [
+    { "key": "M0", "title": "M0 · Operating baseline", "description": "Every change checked in CI, core loop covered by a browser smoke test, eval baselines recorded, owner using the real app weekly. Gate: docs/operating/milestones.md (M0)." },
+    { "key": "M1", "title": "M1 · ICP and positioning evidence", "description": "Growth track. Listening map, evidence ledger, problem interviews, funnel map v1 and a chosen positioning angle before goal fitting and accounts. Gate and kill rule: docs/operating/milestones.md (M1)." },
+    { "key": "M2", "title": "M2 · Trustworthy recipes and nutrition", "description": "Roadmap stage 1. Provenance per nutrition and yield field, unknown stays unknown, measured import fidelity, rights register v0. Gate: docs/operating/milestones.md (M2)." },
+    { "key": "M3", "title": "M3 · Repeatable week and goal fit", "description": "Roadmap stage 2. Honest numeric goal fit, week scenario suite, usable second week for the owner and screened participants. Gate: docs/operating/milestones.md (M3)." },
+    { "key": "M4", "title": "M4 · Shared commands and local agent proof", "description": "Roadmap stage 3A, units U1-U2. One command boundary for UI and a local MCP bridge on the real app; outcome comparison decides remote MCP. Gate: docs/operating/milestones.md (M4)." },
+    { "key": "M5", "title": "M5 · Accounts, Android, sync and entitlements", "description": "Roadmap stage 3. Native Android and web on shared records with consented migration. Entry needs owner decisions O002 and O003. Gate: docs/operating/milestones.md (M5)." },
+    { "key": "M6", "title": "M6 · Closed pilot", "description": "Roadmap stage 4. 30 screened participants; 20 first weeks, 12 second weeks, 8 payments, 5 renewals evaluated with denominators. Gate: docs/operating/milestones.md (M6)." },
+    { "key": "M7", "title": "M7 · Release and growth", "description": "Roadmap stage 5. Public release after go/no-go; baselines and event checks before launch beats; day-9 and day-30 reviews. Gate: docs/operating/milestones.md (M7)." }
+  ]
+}

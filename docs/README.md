@@ -1,6 +1,6 @@
 # Mealbook documentation
 
-Updated October 27, 2026. Begin with [the product truth](../PRODUCT.md), [strategy](../STRATEGY.md) and [commercial roadmap](roadmap/commercial-release.md). This repository contains a working personal app and a plan for a commercial product—not a commercially released service.
+Updated October 28, 2026. Begin with [the product truth](../PRODUCT.md), [strategy](../STRATEGY.md) and [commercial roadmap](roadmap/commercial-release.md). This repository contains a working personal app and a plan for a commercial product—not a commercially released service.
 
 ## Which documents decide what?
 
@@ -17,6 +17,8 @@ Updated October 27, 2026. Begin with [the product truth](../PRODUCT.md), [strate
 | What role could Ollaya/Laya have? | [Decision models](architecture/decision-models.md) | Optional measured experiment, no deployment |
 | How do we acquire and retain customers? | [Go-to-market](commercial/go-to-market.md) | Pilot and channels proposed, not executed |
 | Can we launch? | [Production readiness](release/production-readiness.md) | Unchecked release evidence gates |
+| What are we building now, and how do we know it is right? | [Operating system](operating/README.md), [milestones and gates](operating/milestones.md), [evals register](evals/README.md) | Active; GitHub Issues is the tracker |
+| Who is it for, which angle, and is growth real? | [Growth method](growth/README.md), [funnel map v0](growth/funnel-map.md) | Method active; funnel map inferred until M1 |
 | How can users bring their own assistant? | [Agent architecture](architecture/agents/README.md), [tool contract](reference/agents/tool-contract.md), [permissions](architecture/agents/permissions-and-trust.md) | Approved design, no live MCP/account API |
 | Which clients work and how does this scale? | [Dated client/competition evidence](research/agent-integrations/README.md), [scaling](architecture/agents/scaling-and-operations.md), [future implementation plan](plans/2026-10-27-1205-feat-agent-friendly-mealbook-plan.md) | Research and proposed milestones, not tested endpoint availability |
 | Can we push source without publishing? | [Source integration](release/source-integration.md) | Explicit deployment controls and evidence |

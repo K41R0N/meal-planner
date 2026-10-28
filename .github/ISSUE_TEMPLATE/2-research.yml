@@ -1,0 +1,43 @@
+name: Research or evidence
+description: Gather evidence by the growth method; never contact people without the owner.
+labels: ["type:research", "track:growth", "status:needs-plan"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: One question this research answers.
+    validations:
+      required: true
+  - type: textarea
+    id: decision
+    attributes:
+      label: Decision it informs
+      description: Which hypothesis in STRATEGY.md, milestone gate or decision changes depending on the answer.
+    validations:
+      required: true
+  - type: textarea
+    id: method
+    attributes:
+      label: Method and sources
+      description: Where to look and how signals are coded (docs/growth/README.md). Note sources that need owner access.
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output
+      description: The artifact updated (listening map, evidence ledger, funnel map, positioning) and the minimum evidence for "done".
+    validations:
+      required: true
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Evidence rules
+      options:
+        - label: Each signal has date, source, confidence tier and job; no usernames, profile links or contact details.
+          required: true
+        - label: Unreadable sources are reported as unreadable, not inferred from titles or summaries.
+          required: true
+        - label: Simulated or persona reactions are not filed as evidence.
+          required: true

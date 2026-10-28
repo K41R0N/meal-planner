@@ -1,0 +1,38 @@
+name: Eval
+description: Build or run an eval from docs/evals/README.md.
+labels: ["type:eval", "track:ops", "status:needs-plan"]
+body:
+  - type: input
+    id: eval
+    attributes:
+      label: Eval ID
+      placeholder: EV-04
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+    validations:
+      required: true
+  - type: textarea
+    id: method
+    attributes:
+      label: Method
+      description: Fixtures or protocol, scorer or rubric, how to run it.
+    validations:
+      required: true
+  - type: textarea
+    id: threshold
+    attributes:
+      label: Threshold (predeclared)
+      description: Written before the first scored run. Changing it later needs a dated decision.
+    validations:
+      required: true
+  - type: textarea
+    id: sample
+    attributes:
+      label: Sample and denominator
+      description: Size, selection, exclusions and how abstentions are counted.
+    validations:
+      required: true

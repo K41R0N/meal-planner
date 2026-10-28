@@ -209,7 +209,9 @@ test('strict timing never treats missing data as zero and edits preserve immutab
   );
 });
 
-test('ready reuse uses immutable batch yield arithmetic, respects saved allocations, and protected choices survive reroll', () => {
+test('ready reuse uses immutable batch yield arithmetic, respects saved allocations, and protected choices survive reroll', (t) => {
+  // Saved uses reserve ready food only from today on, so pin the clock to the fixture's dates.
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-27T12:00:00.000Z') });
   const dinner = recipe('ready-dinner');
   const other = recipe('other-dinner');
   const app = state([dinner, other], { [dinner.id]: profile(), [other.id]: profile() });

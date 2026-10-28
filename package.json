@@ -11,7 +11,8 @@
     "build": "node scripts/prepare-fonts.mjs && tsc --noEmit && vite build && node scripts/generate-sw.mjs",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
-    "docs:check": "node scripts/check-doc-links.mjs"
+    "docs:check": "node scripts/check-doc-links.mjs",
+    "eval:coverage": "node scripts/evals/library-coverage.mjs"
   },
   "dependencies": {
     "idb": "^8.0.3",

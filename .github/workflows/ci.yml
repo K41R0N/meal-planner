@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: ['**']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Documentation links
+        run: pnpm docs:check
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: EV-01 regression tests
+        run: pnpm test
+      - name: Production build
+        run: pnpm build
+      - name: EV-02 library coverage (descriptive)
+        run: |
+          {
+            echo '### EV-02 library coverage'
+            echo '```'
+            node scripts/evals/library-coverage.mjs
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
