@@ -18,7 +18,7 @@ A user-owned recipe is not a public catalog license. Review `docs/reference/prov
 
 ## Tracker, milestones and loops
 
-GitHub Issues on `K41R0N/meal-planner` is the project tracker. Work happens against an issue in a milestone; read `docs/operating/README.md` for the issue contract, labels, work-in-progress limit and the four loops (unit, weekly review, gate review, strategy check), and `docs/operating/milestones.md` for each milestone's gate and kill/pivot rule. Measure against `docs/evals/README.md`; gather market evidence by `docs/growth/README.md`. Labels and milestones are defined in `.github/pm/board.json`; change them there, not by hand. The repository is public: issues and comments carry no personal data, credentials or private reference-repository content.
+GitHub Issues on `K41R0N/meal-planner` is the project tracker. Work happens against an issue in a milestone; read `docs/operating/README.md` for the issue contract, labels, work-in-progress limit and the four loops (unit, weekly review, gate review, strategy check), and `docs/operating/milestones.md` for how milestones mirror the roadmap's stages and gates. Measure against `docs/evals/README.md`. `docs/growth/README.md` holds research and growth methods used inside Stages 2, 4 and 5; methods never add milestones or gates. Labels and milestones are defined in `.github/pm/board.json`; change them there, not by hand. The repository is public: issues and comments carry no personal data, credentials or private reference-repository content.
 
 ## Scope, checks and release
 

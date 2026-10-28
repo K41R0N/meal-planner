@@ -1,10 +1,10 @@
 {
-  "$comment": "Board structure for K41R0N/meal-planner. Synced by .github/workflows/pm-sync.yml on push; the sync creates and updates, never deletes. Milestones match on the key before the first space of the title. Gates live in docs/operating/milestones.md.",
+  "$comment": "Board structure for K41R0N/meal-planner. Synced by .github/workflows/pm-sync.yml on push. Milestones mirror the stages of docs/roadmap/commercial-release.md (map: docs/operating/milestones.md) and match on the key before the first space of the title; `aliases` lets an existing milestone be renamed in place. A `retired` milestone is closed only once it has no open issues. The sync never deletes.",
   "labels": [
-    { "name": "type:epic", "color": "5319e7", "description": "One per milestone; mirrors the exit gate and parents its issues" },
+    { "name": "type:epic", "color": "5319e7", "description": "One per roadmap stage; mirrors the stage gate and parents its issues" },
     { "name": "type:feature", "color": "1d76db", "description": "User- or owner-observable change" },
     { "name": "type:eval", "color": "0e8a16", "description": "Builds or runs an eval from docs/evals/README.md" },
-    { "name": "type:research", "color": "c5def5", "description": "Gathers evidence per docs/growth/README.md" },
+    { "name": "type:research", "color": "c5def5", "description": "Gathers evidence with the methods in docs/growth/README.md" },
     { "name": "type:decision", "color": "d93f0b", "description": "The owner chooses; agents prepare options and evidence" },
     { "name": "type:bug", "color": "b60205", "description": "Behavior differs from an owning contract" },
     { "name": "type:chore", "color": "cfd3d7", "description": "Tooling, config or maintenance with no product change" },
@@ -13,7 +13,7 @@
     { "name": "track:design", "color": "bfdadc", "description": "Card system, interaction and accessibility" },
     { "name": "track:agent", "color": "bfdadc", "description": "Shared commands, MCP and assistant access" },
     { "name": "track:platform", "color": "bfdadc", "description": "Android, accounts, sync, hosting" },
-    { "name": "track:growth", "color": "bfdadc", "description": "ICP, positioning, funnel and growth monitoring" },
+    { "name": "track:growth", "color": "bfdadc", "description": "Research, positioning and growth measurement inside Stages 2, 4 and 5" },
     { "name": "track:ops", "color": "bfdadc", "description": "Board, CI, evals and operating loops" },
     { "name": "status:needs-plan", "color": "fbca04", "description": "Needs a plan or sharper acceptance criteria before work" },
     { "name": "status:ready", "color": "0e8a16", "description": "Meets the definition of ready" },
@@ -28,13 +28,13 @@
     { "name": "owner-wish", "color": "f9d0c4", "description": "Stated by the owner; no milestone covers it yet" }
   ],
   "milestones": [
-    { "key": "M0", "title": "M0 · Operating baseline", "description": "Every change checked in CI, core loop covered by a browser smoke test, eval baselines recorded, owner using the real app weekly. Gate: docs/operating/milestones.md (M0)." },
-    { "key": "M1", "title": "M1 · ICP and positioning evidence", "description": "Growth track. Listening map, evidence ledger, problem interviews, funnel map v1 and a chosen positioning angle before goal fitting and accounts. Gate and kill rule: docs/operating/milestones.md (M1)." },
-    { "key": "M2", "title": "M2 · Trustworthy recipes and nutrition", "description": "Roadmap stage 1. Provenance per nutrition and yield field, unknown stays unknown, measured import fidelity, rights register v0. Gate: docs/operating/milestones.md (M2)." },
-    { "key": "M3", "title": "M3 · Repeatable week and goal fit", "description": "Roadmap stage 2. Honest numeric goal fit, week scenario suite, usable second week for the owner and screened participants. Gate: docs/operating/milestones.md (M3)." },
-    { "key": "M4", "title": "M4 · Shared commands and local agent proof", "description": "Roadmap stage 3A, units U1-U2. One command boundary for UI and a local MCP bridge on the real app; outcome comparison decides remote MCP. Gate: docs/operating/milestones.md (M4)." },
-    { "key": "M5", "title": "M5 · Accounts, Android, sync and entitlements", "description": "Roadmap stage 3. Native Android and web on shared records with consented migration. Entry needs owner decisions O002 and O003. Gate: docs/operating/milestones.md (M5)." },
-    { "key": "M6", "title": "M6 · Closed pilot", "description": "Roadmap stage 4. 30 screened participants; 20 first weeks, 12 second weeks, 8 payments, 5 renewals evaluated with denominators. Gate: docs/operating/milestones.md (M6)." },
-    { "key": "M7", "title": "M7 · Release and growth", "description": "Roadmap stage 5. Public release after go/no-go; baselines and event checks before launch beats; day-9 and day-30 reviews. Gate: docs/operating/milestones.md (M7)." }
-  ]
+    { "key": "S0", "aliases": ["M0"], "title": "S0 · Preserve the working personal foundation", "description": "Roadmap stage 0. Gate: document the foundation and verify clean build and backup behavior; no new commercial claims, checkout or public creator-catalog distribution. Source: docs/roadmap/commercial-release.md" },
+    { "key": "S1", "aliases": ["M2"], "title": "S1 · Make recipes and nutrition trustworthy", "description": "Roadmap stage 1. Gate: a representative held-out set meets predeclared source-fidelity, ingredient/unit, yield and serving-basis thresholds, with denominators and abstention; no licensed-starter claim for the research seed without rights review. Source: docs/roadmap/commercial-release.md" },
+    { "key": "S2", "aliases": ["M3"], "title": "S2 · Prove the repeatable week and numeric-goal engine", "description": "Roadmap stage 2. Gate: held-out week scenarios pass; a supervised pilot shows users can reach a usable second week. Source: docs/roadmap/commercial-release.md" },
+    { "key": "S3", "aliases": ["M5"], "title": "S3 · Add accounts, Android, sync and authoritative entitlements", "description": "Roadmap stage 3. Gate: Android device and interrupted-network tests, migration and restore, no cross-user leakage, purchase/expiry/refund webhooks and support exercises in staging; owner, privacy documents, publisher accounts and budget limits before paid users. Source: docs/roadmap/commercial-release.md" },
+    { "key": "S3A", "aliases": ["M4"], "title": "S3A · Agent-friendly shared workspace and MCP", "description": "Roadmap stage 3A. Shared commands and local bridge alongside stages 1-2; account-backed remote MCP after stage 3. Gate: authorized source-to-shopping scenario in the real app and tested clients, with safety, recovery and cost evidence. Source: docs/roadmap/commercial-release.md" },
+    { "key": "S4", "aliases": ["M6"], "title": "S4 · Closed commercial pilot before broad marketing", "description": "Roadmap stage 4. Gate: readiness register signed off; support can recover billing and data incidents; payment and renewal evidence (20/12/8/5 of 30) informs scaling. Source: docs/roadmap/commercial-release.md" },
+    { "key": "S5", "aliases": ["M7"], "title": "S5 · Release and growth, only after the gates", "description": "Roadmap stage 5. Android and responsive web with accurate claims, support, export, deletion, attribution and rollback; growth measured before scaling. Source: docs/roadmap/commercial-release.md" }
+  ],
+  "retired": ["M1"]
 }

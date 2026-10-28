@@ -2,24 +2,26 @@
 
 Updated October 28, 2026. This is the operating system for turning the [commercial roadmap](../roadmap/commercial-release.md) into shipped, verified work. It decides **where work is tracked, what "done" means, which loops catch wrong turns and what evidence a decision needs**. It does not approve deployment, billing, outreach or providers; those stay with the owner under [the decision registry](../decisions/README.md).
 
+**What versus how.** The roadmap says what gets built and in which order; GitHub milestones mirror its stages exactly ([mapping](milestones.md)). This file, the [evals register](../evals/README.md) and the [research and growth methods](../growth/README.md) say how the work is run and checked. Methods never add stages or gates to the roadmap.
+
 ## The board
 
 GitHub Issues on `K41R0N/meal-planner` is the only tracker. The repository is public, so issues hold product and engineering content only: no personal data, credentials, private reference-repository content or third-party client material.
 
-- **Milestones** are evidence gates, not dates. Each has an entry condition, an exit gate, evals and a kill/pivot rule in [milestones](milestones.md). A milestone closes only when its gate review passes.
-- **Epics** (`type:epic`) are one per milestone. The epic mirrors the gate as a checklist and parents the milestone's issues as sub-issues. Issue titles start with the milestone key, e.g. `[M2] Property test: unknown nutrition never becomes zero`; unscheduled ideas have no prefix.
-- **Labels** carry type, track, status and priority. Labels and milestones are defined in [`.github/pm/board.json`](../../.github/pm/board.json) and created by the `PM board sync` workflow, so the board structure is reviewed like code. The workflow creates and updates; it never deletes. It also assigns any open `[Mx]` issue without a milestone to milestone Mx, on push and whenever an issue is opened or edited.
+- **Milestones** are the roadmap's stages: S0, S1, S2, S3, S3A, S4 and S5, each with the roadmap's own gate, mapped to evals in [milestones](milestones.md). They have no dates. A milestone closes only when its gate review passes.
+- **Epics** (`type:epic`) are one per milestone. The epic mirrors the gate as a checklist and parents the milestone's issues as sub-issues. Issue titles start with the milestone key, e.g. `[S1] Property test: unknown nutrition never becomes zero`; unscheduled ideas and operating work have no prefix.
+- **Labels** carry type, track, status and priority. Labels and milestones are defined in [`.github/pm/board.json`](../../.github/pm/board.json) and created by the `PM board sync` workflow, so the board structure is reviewed like code. The workflow creates and updates; it never deletes. It also assigns any open `[Sx]` issue without a milestone to milestone Sx, on push and whenever an issue is opened or edited.
 - **Rolling-wave detail.** The current milestones carry implementation-sized issues. Later milestones carry coarse issues that are split when their milestone becomes current. Planning far ahead in detail produces work nobody reads again.
 
 | Label family | Values | Meaning |
 |---|---|---|
 | `type:` | `epic`, `feature`, `eval`, `research`, `decision`, `bug`, `chore` | What kind of work. `decision` means the owner must choose; agents prepare options and evidence. |
-| `track:` | `product`, `domain`, `design`, `agent`, `platform`, `growth`, `ops` | Which part of the system. Growth issues follow [the growth method](../growth/README.md). |
+| `track:` | `product`, `domain`, `design`, `agent`, `platform`, `growth`, `ops` | Which part of the system. Growth issues sit inside Stages 2, 4 and 5 and use [the research and growth methods](../growth/README.md). |
 | `status:` | `needs-plan`, `ready`, `in-progress`, `in-review`, `blocked`, `needs-owner` | Where it is. Closed means done with evidence. |
 | `priority:` | `now`, `next`, `later` | `now` is this cycle, `next` follows it, `later` is parked with its reason. |
 | other | `regression`, `owner-wish` | A capability fell below its eval; an idea the owner stated that no milestone yet covers. |
 
-**Work-in-progress limit:** at most three issues `status:in-progress` at once, and at most one current build milestone plus one current growth milestone. Finishing beats starting.
+**Work-in-progress limit:** at most three issues `status:in-progress` at once. Stages run in roadmap order; the only overlap the roadmap allows is S3A's shared-command and local-bridge units alongside S1–S2. Finishing beats starting.
 
 ## The issue contract
 
@@ -48,8 +50,8 @@ Once a week, one comment on the pinned operating-log issue, in this order:
 
 1. **Shipped:** issues closed, with eval movement.
 2. **Evals:** current value versus last week for each active eval; any regression gets a `type:bug` + `regression` issue.
-3. **Dogfood:** the owner's week from [EV-08](../evals/README.md): useful week yes/no, correction minutes, friction notes.
-4. **Growth signals:** new evidence-ledger entries and anything that challenges [STRATEGY.md](../../STRATEGY.md).
+3. **Dogfood:** the owner's week from [EV-08](../evals/README.md), as counts and non-personal summaries only (this issue is public).
+4. **Strategy signals:** anything observed that challenges [STRATEGY.md](../../STRATEGY.md).
 5. **Owner queue:** open `status:needs-owner` issues with the decision each one blocks.
 6. **Next:** re-rank `priority:now` and enforce the WIP limit.
 7. **Learning:** one line on what this week taught, or "none".
@@ -60,13 +62,13 @@ When every exit-gate item on an epic has linked evidence, an agent assembles a g
 
 ### L4 — Strategy check (each gate review, and at least monthly)
 
-Compare the evidence ledger and eval results against the hypotheses in `STRATEGY.md`. If evidence contradicts a hypothesis, run `ce-strategy` with the owner to update it before more build work depends on it. Each milestone in [milestones](milestones.md) has a kill/pivot rule; when one trips, stop work on that milestone and revise with the owner first.
+Compare eval results and any observed user evidence against the hypotheses in `STRATEGY.md`. If evidence contradicts a hypothesis, raise it with the owner, who decides whether to update `STRATEGY.md` (with `ce-strategy`) or the roadmap. Where the roadmap states a stop rule, it applies as written.
 
 **Demotion.** A shipped capability whose eval falls below its threshold is reopened as a `regression` issue. Shipping is not permanent.
 
 ## Evidence and confidence
 
-Adapted from the owner's audience-research method. Every claim that supports a gate or a strategy change carries one tier. Gate criteria accept only `measured` or `observed`.
+A method adapted from the owner's audience-research practice. Every claim that supports a gate or a strategy change carries one tier. Gate criteria accept only `measured` or `observed`.
 
 | Tier | Means | Use |
 |---|---|---|

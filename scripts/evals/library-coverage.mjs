@@ -47,6 +47,13 @@ const bySource = {};
 for (const recipe of bank.recipes) (bySource[recipe.id.split(':')[0]] ??= []).push(recipe);
 let commit = null;
 try { commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(); } catch {}
+const writeIndex = process.argv.indexOf('--write');
+if (writeIndex !== -1) {
+  // A recorded result must be reproducible from its commit: the script and its inputs may not differ from HEAD.
+  const inputs = ['scripts/evals/library-coverage.mjs', seedPath, 'package.json'];
+  const dirty = commit ? execFileSync('git', ['status', '--porcelain', '--', ...inputs], { cwd: root, encoding: 'utf8' }).trim() : 'no git commit';
+  if (dirty) throw new Error(`--write needs committed inputs; uncommitted: ${dirty}`);
+}
 
 const result = {
   eval: 'EV-02',
@@ -59,12 +66,11 @@ const result = {
   bySource: Object.fromEntries(Object.entries(bySource).map(([source, recipes]) => [source, measure(recipes)])),
 };
 
-const writeIndex = process.argv.indexOf('--write');
 if (writeIndex !== -1) {
   const target = path.resolve(root, process.argv[writeIndex + 1] ?? '');
   if (!target.startsWith(path.join(root, 'docs', 'evals', 'results') + path.sep)) throw new Error('--write must target docs/evals/results/');
   await mkdir(path.dirname(target), { recursive: true });
-  await writeFile(target, `${JSON.stringify(result, null, 2)}\n`);
+  await writeFile(target, `${JSON.stringify(result, null, 2)}\n`, { flag: 'wx' });
   console.log(`Wrote ${path.relative(root, target)}`);
 }
 

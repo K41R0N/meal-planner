@@ -1,44 +1,50 @@
-# Growth method: evidence, positioning and monitoring
+# Research and growth methods
 
-Updated October 28, 2026. How Mealbook learns who it is for, which angle moves them and whether growth is real. Adapted from the owner's audience-research and launch-measurement methods; only the reusable method is carried over, not any other client's material. [STRATEGY.md](../../STRATEGY.md) owns the current hypotheses, [go-to-market](../commercial/go-to-market.md) owns channel and pilot proposals, and this file owns how evidence for both is gathered and judged. Nothing here authorizes outreach, posting or campaigns; contacting people is owner-only.
+Updated October 28, 2026. These are **methods, not roadmap stages**. They come from the owner's audience-research and launch-measurement practice; only the reusable method is carried over, not any other client's material. The [commercial roadmap](../roadmap/commercial-release.md) decides what gets built and when; [STRATEGY.md](../../STRATEGY.md) owns the current customer and positioning hypotheses; [go-to-market](../commercial/go-to-market.md) owns channel and pilot proposals. This file describes how to gather and judge evidence when a stage calls for it. Nothing here authorizes outreach, posting or campaigns; contacting people is owner-only.
 
-## The four artifacts
+## Where the roadmap uses them
 
-| Artifact | Location | Answers | Created in |
-|---|---|---|---|
-| Listening map | `docs/growth/listening-map.md` | Where the target segment talks, in what words, and which signal types matter | M1 |
-| Evidence ledger | `docs/growth/evidence-ledger.csv` | What we have actually observed, coded to a job, pain and confidence tier | M1, then ongoing |
-| Funnel map | [funnel-map.md](funnel-map.md) | For each step from first sight to renewal: the belief needed, the trigger, the blocker and the observable signal | v0 now (inferred), v1 at M1 gate |
-| Positioning scorecard | `docs/growth/positioning.md` | Which angle the evidence supports, and how the pilot will test it | M1 |
+| Roadmap stage | What the roadmap asks for | Method used |
+|---|---|---|
+| Stage 2 | "A supervised pilot demonstrates users can reach a usable second week" | Screener, moderated sessions, evidence tiers (EV-10) |
+| Stage 4 | Recruit 30 qualified, permission-based testers; interview dropouts; instrument only consented, minimal events | Recruitment channel map (listening map), screener, interview guide, funnel map as the event plan (EV-11) |
+| Stage 5 | Accurate store descriptions and claims; measured acquisition before scaling | Positioning scorecard from pilot evidence; launch measurement rules below |
+
+Outside those stages the methods are optional. An agent may use them to sharpen a question for the owner, but they do not create milestones, gates or dependencies.
+
+## The tools
+
+| Tool | Location when used | Answers |
+|---|---|---|
+| Listening map | `docs/growth/listening-map.md` | Where the target segment talks, in what words, and where recruitment is permitted |
+| Evidence ledger | `docs/growth/evidence-ledger.csv` | What was actually observed, coded to a job, pain and confidence tier |
+| Funnel map | [funnel-map.md](funnel-map.md) | For each step from first sight to renewal: belief, trigger, blocker and the event that observes it |
+| Positioning scorecard | `docs/growth/positioning.md` | Which angle the evidence supports and the shipped product can honestly deliver |
 
 ## Gathering evidence
 
-**Listen before asking.** Public posts and competitor app reviews show unprompted language and pain. Record each signal in the ledger with: date observed, source URL, source type, a short paraphrase (not a copy of the post), the job it relates to, the pain, whether it supports or contradicts a `STRATEGY.md` hypothesis, and a confidence tier from [the operating rules](../operating/README.md#evidence-and-confidence). Never store usernames, profile links or contact details. If a source cannot be opened or read, say so; do not code it from its title.
+**Listen before asking.** Public posts and competitor reviews show unprompted language and pain. Record each signal with: date observed, a source reference, source type, a short paraphrase (not a copy), the job it relates to, the pain, whether it supports or contradicts a `STRATEGY.md` hypothesis, and a confidence tier from [the operating rules](../operating/README.md#evidence-and-confidence). The source reference is the place plus a post or review identifier (for example a community name and post ID, or an app listing and review date), never a URL or text that contains a username, profile link or contact detail. The repository is public. If a source cannot be opened or read, say so; do not code it from its title.
 
-**Code against jobs, not features.** The jobs under test are: finding realistic cooking time; turning saved recipes into a week; one shopping list that covers useful meals; hitting calorie/protein targets; fixing imported recipes; reusing prepared food. A signal that names a feature ("I want YouTube import") is coded to the job behind it.
+**Code against jobs, not features.** The jobs in `STRATEGY.md` are: finding realistic cooking time; turning saved recipes into a week; one shopping list that covers useful meals; hitting calorie and protein targets; fixing imported recipes; reusing prepared food. A signal that names a feature is coded to the job behind it.
 
-**Interview to explain, not to sell.** Problem interviews follow the screener and guide written in M1. The owner runs them; agents prepare the guide and synthesize notes into the ledger as `observed`. Ask about the last real week, not hypothetical preferences.
+**Interview to explain, not to sell.** Ask about the last real week, not hypothetical preferences. The owner runs interviews; agents prepare guides and synthesize notes as `observed` evidence.
 
-**Simulated readers are for drafts only.** An LLM asked to react as "the persona" can catch confusing copy before a human sees it. Its reactions are `simulated`: never ledger entries, never gate evidence.
+**Simulated readers are for drafts only.** An LLM asked to react as "the persona" can catch confusing copy. Its reactions are `simulated`: never evidence, never filed as a finding.
 
-## Choosing the angle
+## Choosing an angle (Stage 5)
 
-Score each candidate angle against the ledger: how many observed signals it speaks to, in the segment's own words; which competitor already owns it (see [the benchmark](../research/market/commercial-strategy.md)); whether the shipped product can honestly deliver it today; and the pilot test that would falsify it. Choose one. Keep the others with their scores, so a failed pilot has a documented next candidate.
+Score each candidate angle against pilot evidence: how many observed signals it speaks to in the segment's own words; which competitor already owns it ([benchmark](../research/market/commercial-strategy.md)); whether the shipped product can honestly deliver it; and what result would falsify it. Keep the runner-up with its score.
 
-## Monitoring growth
+## Measuring growth
 
 **North-star:** repeat useful prep weeks, as defined in [the evals register](../evals/README.md). Imports, sessions, downloads and trials are inputs, never substitutes.
 
-**Instrumentation rules** (for when consented analytics exist; none exist today):
+**Instrumentation rules** (Stage 4 onward; no analytics exist today):
 
 1. Event names are versioned and listed in the funnel map with the step they observe.
-2. Before any launch or change meant to move a metric: record the baseline, and confirm in a test environment that every event the change depends on actually fires. A funnel step that was never wired produces a confident wrong answer.
+2. Before any launch or change meant to move a metric: record the baseline and confirm in a test environment that every event it depends on actually fires. An unwired step produces a confident wrong answer.
 3. Every reported number carries its window, source, filters and denominator.
 4. No recipe text, dietary details, contact details or free text in generic analytics.
-5. Review cadence after a launch beat: a day-9 read to set the adoption baseline, a day-30 report against it. Weekly growth notes go in the operating log.
+5. After a launch beat: a day-9 read sets the adoption baseline; a day-30 report compares against it.
 
-Once a consented analytics source exists, the Compound Engineering `ce-product-pulse` skill can produce dated single-page pulse reports from it; until then, the weekly review uses the evidence ledger and EV-08.
-
-## Kill and revise
-
-The M1 kill/pivot rule in [the milestones](../operating/milestones.md#m1--icp-and-positioning-evidence-growth-track) applies. More generally: if two consecutive weekly reviews add evidence that contradicts a `STRATEGY.md` hypothesis and none that supports it, open a `type:decision` issue to revisit it with `ce-strategy`.
+Once a consented analytics source exists, the Compound Engineering `ce-product-pulse` skill can produce dated single-page pulse reports from it.
