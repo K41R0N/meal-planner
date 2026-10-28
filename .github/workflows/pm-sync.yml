@@ -1,12 +1,15 @@
 name: PM board sync
 
-# Creates or updates the labels and milestones declared in .github/pm/board.json.
-# Never deletes, renames unrelated items or changes milestone state.
+# Creates or updates the labels and milestones declared in .github/pm/board.json,
+# then assigns open issues titled "[M<n>] ..." without a milestone to milestone M<n>.
+# Never deletes, renames unrelated items, changes milestone state or overrides a set milestone.
 on:
   push:
     paths:
       - .github/pm/board.json
       - .github/workflows/pm-sync.yml
+  issues:
+    types: [opened, edited]
   workflow_dispatch:
 
 permissions:
@@ -55,6 +58,20 @@ jobs:
                 await github.rest.issues.updateMilestone({ owner, repo, milestone_number: existing.number, title: milestone.title, description: milestone.description });
                 changes.push(['milestone', `${milestone.title} (#${existing.number})`, 'updated']);
               }
+            }
+
+            const current = await github.paginate(github.rest.issues.listMilestones, { owner, repo, state: 'all', per_page: 100 });
+            const numberByKey = new Map(current.map((milestone) => [milestone.title.split(' ')[0], milestone.number]));
+            const issues = context.eventName === 'issues'
+              ? [context.payload.issue]
+              : await github.paginate(github.rest.issues.listForRepo, { owner, repo, state: 'open', milestone: 'none', per_page: 100 });
+            for (const issue of issues) {
+              if (issue.pull_request || issue.milestone) continue;
+              const key = /^\[(M\d+)\]/.exec(issue.title)?.[1];
+              const number = key && numberByKey.get(key);
+              if (!number) continue;
+              await github.rest.issues.update({ owner, repo, issue_number: issue.number, milestone: number });
+              changes.push(['issue', `#${issue.number} → ${key}`, 'milestone set']);
             }
 
             core.summary.addHeading('PM board sync');

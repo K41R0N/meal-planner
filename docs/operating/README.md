@@ -7,8 +7,8 @@ Updated October 28, 2026. This is the operating system for turning the [commerci
 GitHub Issues on `K41R0N/meal-planner` is the only tracker. The repository is public, so issues hold product and engineering content only: no personal data, credentials, private reference-repository content or third-party client material.
 
 - **Milestones** are evidence gates, not dates. Each has an entry condition, an exit gate, evals and a kill/pivot rule in [milestones](milestones.md). A milestone closes only when its gate review passes.
-- **Epics** (`type:epic`) are one per milestone. The epic mirrors the gate as a checklist and parents the milestone's issues as sub-issues.
-- **Labels** carry type, track, status and priority. Labels and milestones are defined in [`.github/pm/board.json`](../../.github/pm/board.json) and created by the `PM board sync` workflow, so the board structure is reviewed like code. The workflow creates and updates; it never deletes.
+- **Epics** (`type:epic`) are one per milestone. The epic mirrors the gate as a checklist and parents the milestone's issues as sub-issues. Issue titles start with the milestone key, e.g. `[M2] Property test: unknown nutrition never becomes zero`; unscheduled ideas have no prefix.
+- **Labels** carry type, track, status and priority. Labels and milestones are defined in [`.github/pm/board.json`](../../.github/pm/board.json) and created by the `PM board sync` workflow, so the board structure is reviewed like code. The workflow creates and updates; it never deletes. It also assigns any open `[Mx]` issue without a milestone to milestone Mx, on push and whenever an issue is opened or edited.
 - **Rolling-wave detail.** The current milestones carry implementation-sized issues. Later milestones carry coarse issues that are split when their milestone becomes current. Planning far ahead in detail produces work nobody reads again.
 
 | Label family | Values | Meaning |
