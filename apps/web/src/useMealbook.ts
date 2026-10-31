@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { createConsumption, validateRecipes, validateState } from '@domain/index';
-import { defaultFilters, emptyNutrition, type AppState, type Recipe } from '@domain/types';
+import { validateRecipes, validateState } from '@domain/index';
+import { defaultFilters, type AppState } from '@domain/types';
 import { experienceEngine as food } from '@domain/experience';
-import { batchPlanning as planning } from '@domain/batch-planner';
 import { purchasePlanning as purchases } from '@domain/purchase-list';
+import { activeWeek, emptyLedger, executeCommand, previewSwap } from '@domain/application-commands';
 import type {
-  BatchWeek,
+  ApplicationCommand,
+  CommandOutcome,
+  OperationLedger,
+} from '@domain/application-contracts';
+import type {
   EatRequest,
   MealbookAction,
   MealbookPage,
@@ -17,7 +21,6 @@ import { loadState, saveState, downloadJson } from './storage';
 import { localDate, makeId } from './components/shared';
 import { RECIPE_JSON_SIZE_MESSAGE, recipeJsonFileFits } from './import-limits';
 import type { MealbookModel } from './mealbook-contract';
-import { reconcileToday, resolveCookingContext } from './today-reconciliation';
 
 const pages = new Set<MealbookPage>([
   'today',
@@ -32,8 +35,6 @@ const pageFromHash = (): MealbookPage => {
   const page = window.location.hash.slice(1) as MealbookPage;
   return pages.has(page) ? page : 'today';
 };
-const activeWeek = (state: AppState): BatchWeek | null =>
-  state.experience?.weeks.find((week) => week.id === state.experience?.activeWeekId) ?? null;
 
 function sharedSource(): { url: string | null; hasShare: boolean } {
   const location = new URL(window.location.href);
@@ -47,55 +48,6 @@ function sharedSource(): { url: string | null; hasShare: boolean } {
   }
   if (!reference && text) reference = extractYouTubeReference(text);
   return { url: reference?.url ?? null, hasShare: url !== null || text !== null };
-}
-
-const ingredientSignature = (recipe: Recipe): string =>
-  JSON.stringify(
-    recipe.ingredients.map((item) => [
-      item.name.trim().toLocaleLowerCase(),
-      item.quantity,
-      item.unit?.trim().toLocaleLowerCase() ?? null,
-    ]),
-  );
-
-function isPureServingScale(previous: Recipe, next: Recipe): boolean {
-  if (
-    !previous.baseServings ||
-    !next.baseServings ||
-    previous.ingredients.length !== next.ingredients.length
-  )
-    return false;
-  const factor = next.baseServings / previous.baseServings;
-  return previous.ingredients.every((ingredient, index) => {
-    const other = next.ingredients[index];
-    if (
-      ingredient.name.trim().toLocaleLowerCase() !== other.name.trim().toLocaleLowerCase() ||
-      (ingredient.unit?.trim().toLocaleLowerCase() ?? null) !==
-        (other.unit?.trim().toLocaleLowerCase() ?? null)
-    )
-      return false;
-    if (ingredient.quantity === null || other.quantity === null) {
-      return (
-        ingredient.quantity === other.quantity && ingredient.quantityText === other.quantityText
-      );
-    }
-    return Math.abs(other.quantity - ingredient.quantity * factor) <= 0.000001;
-  });
-}
-
-function preserveGroceryChanges(previous: AppState, next: AppState): AppState {
-  if (!previous.experience || !next.experience) return next;
-  const before = purchases.buildList(previous, activeWeek(previous));
-  const after = purchases.buildList(next, activeWeek(next));
-  if (before.scopeId !== after.scopeId) return next;
-  const previousItems = new Map(before.items.map((item) => [item.key, item]));
-  const changes = { ...next.experience.groceryChanges };
-  for (const item of after.items) {
-    const old = previousItems.get(item.key);
-    if (old && old.displayQuantity !== item.displayQuantity && !changes[item.key])
-      changes[item.key] = old.displayQuantity;
-  }
-  return { ...next, experience: { ...next.experience, groceryChanges: changes } };
 }
 
 export function useMealbook() {
@@ -133,13 +85,22 @@ export function useMealbook() {
     if (window.location.hash !== `#${next}`) window.location.hash = next;
     else setPage(next);
   };
-  const commit = (updater: (previous: AppState) => AppState): AppState => {
+  // Replay ledger and revision for the shared command boundary. Not part of the
+  // saved book or its backups.
+  const record = useRef<{ ledger: OperationLedger; revision: number }>({
+    ledger: emptyLedger(),
+    revision: 0,
+  });
+  /** Applies one command through the shared domain boundary, then saves and renders. */
+  const run = <C extends ApplicationCommand>(command: C): CommandOutcome<C> => {
     const previous = current.current;
     if (!previous) throw new Error('Your recipe book is still opening.');
-    let next = updater(previous);
-    next = food.ensureState(next);
-    next = preserveGroceryChanges(previous, next);
-    next = food.ensureToday(next, date, next.experience!.preferredSlot);
+    const { snapshot, outcome } = executeCommand(
+      { state: previous, ledger: record.current.ledger, revision: record.current.revision },
+      { operationId: makeId('op'), command, context: { date } },
+    );
+    record.current = { ledger: snapshot.ledger, revision: snapshot.revision };
+    const next = snapshot.state;
     current.current = next;
     saveGeneration.current += 1;
     if (saveTimer.current !== null) window.clearTimeout(saveTimer.current);
@@ -151,26 +112,7 @@ export function useMealbook() {
         ),
       );
     setState(next);
-    return next;
-  };
-  const putWeek = (previous: AppState, week: BatchWeek): AppState => {
-    const experience = previous.experience!;
-    const exists = experience.weeks.some((item) => item.id === week.id);
-    return {
-      ...previous,
-      experience: {
-        ...experience,
-        weeks: exists
-          ? experience.weeks.map((item) => (item.id === week.id ? week : item))
-          : [...experience.weeks, week],
-        activeWeekId: week.id,
-      },
-    };
-  };
-  const requireWeek = (value: AppState): BatchWeek => {
-    const week = activeWeek(value);
-    if (!week) throw new Error('Choose a week first, or shop a single recipe.');
-    return week;
+    return outcome;
   };
 
   useEffect(() => {
@@ -307,164 +249,65 @@ export function useMealbook() {
           setFilters(action.filters);
           return true;
         case 'SET_TODAY_SLOT':
-          commit((previous) => ({
-            ...previous,
-            experience: { ...previous.experience!, preferredSlot: action.slot },
-          }));
+          run({ type: 'today.setSlot', slot: action.slot });
           return true;
         case 'CHOOSE_TODAY':
-          commit((previous) =>
-            food.chooseToday(previous, date, experience.preferredSlot, action.recipeId, {
-              batchId: action.batchId,
-              useId: action.useId,
-            }),
-          );
+          run({
+            type: 'today.choose',
+            recipeId: action.recipeId,
+            batchId: action.batchId,
+            useId: action.useId,
+          });
           setSelectedRecipeId(null);
           navigate('today');
           return true;
         case 'NEXT_MEAL':
-          commit((previous) => food.nextMeal(previous, date, experience.preferredSlot));
+          run({ type: 'today.next' });
           return true;
         case 'START_COOK': {
-          const id = makeId('cook');
-          let working = value;
-          const currentRecipe = value.recipes.find((recipe) => recipe.id === action.recipeId);
-          if (currentRecipe?.baseServings === null && action.sourceYield !== undefined) {
-            const updated = validateRecipes([
-              { ...currentRecipe, baseServings: action.sourceYield },
-            ])[0];
-            working = {
-              ...working,
-              recipes: working.recipes.map((recipe) =>
-                recipe.id === updated.id ? updated : recipe,
-              ),
-            };
-          }
-          const alreadyRunning = working.experience!.sessions.some(
-            (session) => session.recipeId === action.recipeId && !session.finishedAt,
-          );
-          if (action.extraBatch && !alreadyRunning) {
-            working = food.chooseToday(working, date, experience.preferredSlot, action.recipeId);
-            working = {
-              ...working,
-              experience: {
-                ...working.experience!,
-                oneOffs: working.experience!.oneOffs.map((intent) => {
-                  const completed = working.experience!.batches.some(
-                    (batch) =>
-                      batch.recipeId === intent.recipeId &&
-                      batch.preparedSourceServings >= intent.sourceServings &&
-                      batch.madeAt >= intent.createdAt,
-                  );
-                  return intent.recipeId === action.recipeId && completed
-                    ? { ...intent, fulfilled: true }
-                    : intent;
-                }),
-              },
-            };
-            working = purchases.addIntent(
-              working,
-              action.recipeId,
-              action.sourceServings,
-              makeId('oneoff'),
-              action.sourceYield,
-            );
-          }
-          const resolved = resolveCookingContext(working, {
+          const { result } = run({
+            type: 'cook.start',
+            sessionId: makeId('cook'),
             recipeId: action.recipeId,
-            date,
-            ...(!action.extraBatch ? { weekId: action.weekId, choiceId: action.choiceId } : {}),
+            sourceServings: action.sourceServings,
+            sourceYield: action.sourceYield,
+            weekId: action.weekId,
+            choiceId: action.choiceId,
+            extraBatch: action.extraBatch,
+            intentId: action.extraBatch ? makeId('oneoff') : undefined,
           });
-          const next = commit(() =>
-            resolved.sessionId
-              ? resolved.state
-              : food.startCook(resolved.state, action.recipeId, action.sourceServings, {
-                  id,
-                  date,
-                  slot: experience.preferredSlot,
-                  sourceYield: action.sourceYield,
-                  weekId: resolved.weekId ?? undefined,
-                  choiceId: resolved.dailyChoiceId,
-                }),
-          );
-          const session =
-            next.experience!.sessions.find((item) => item.id === (resolved.sessionId ?? id)) ??
-            next.experience!.sessions.find(
-              (item) => item.recipeId === action.recipeId && !item.finishedAt,
-            );
-          if (!session) throw new Error('The cooking session could not be opened.');
           cookReturn.current = page;
           cookReturnRecipe.current = selectedRecipeId;
-          setCookSessionId(session.id);
+          setCookSessionId(result.sessionId);
           setSelectedIntent('view');
           setSelectedRecipeId(null);
-          if (resolved.sessionId)
+          if (result.resumed)
             announce(
               'Continuing your in-progress batch. Amount, checks, timers and steps are preserved.',
             );
           return true;
         }
         case 'UPDATE_COOK':
-          commit((previous) => food.updateCook(previous, action.sessionId, action.patch));
+          run({ type: 'cook.update', sessionId: action.sessionId, patch: action.patch });
           return true;
-        case 'FINISH_COOK': {
-          commit((previous) => {
-            const session = previous.experience!.sessions.find(
-              (item) => item.id === action.sessionId,
-            );
-            if (session?.finishedAt) return previous;
-            let completed = food.finishCook(previous, action.sessionId, {
-              id: makeId('batch'),
-              actualYield: action.actualYield,
-              yieldUnit: action.yieldUnit,
-              storage: action.storage,
-              storageNotes: action.storageNotes,
-              reheatNotes: action.reheatNotes,
-              preparedSourceServings: action.preparedSourceServings,
-              elapsedMinutes: action.elapsedMinutes,
-              rememberTiming: action.rememberTiming,
-            });
-            const batch = completed.experience!.batches.find(
-              (item) => item.sessionId === action.sessionId,
-            );
-            if (!batch || !session) return completed;
-            completed = {
-              ...completed,
-              experience: {
-                ...completed.experience!,
-                oneOffs: completed.experience!.oneOffs.map((intent) => {
-                  const sameDose =
-                    Math.abs(intent.sourceServings - session.sourceServings) < 0.000001;
-                  const sameRecipe =
-                    intent.recipeId === session.recipeId &&
-                    intent.recipeSnapshot.baseServings === session.recipeSnapshot.baseServings &&
-                    ingredientSignature(intent.recipeSnapshot) ===
-                      ingredientSignature(session.recipeSnapshot);
-                  return !intent.fulfilled && sameDose && sameRecipe
-                    ? { ...intent, fulfilled: true }
-                    : intent;
-                }),
-              },
-            };
-            const week = completed.experience!.weeks.find((item) => item.id === session.weekId);
-            const use = week?.uses.find(
-              (item) =>
-                item.date === date &&
-                item.slot === experience.preferredSlot &&
-                !item.skipped &&
-                week.choices.find((choice) => choice.id === item.choiceId)?.readyBatchId ===
-                  batch.id,
-            );
-            return food.chooseToday(completed, date, experience.preferredSlot, batch.recipeId, {
-              batchId: batch.id,
-              ...(use ? { useId: use.id } : {}),
-            });
+        case 'FINISH_COOK':
+          run({
+            type: 'cook.finish',
+            sessionId: action.sessionId,
+            batchId: makeId('batch'),
+            actualYield: action.actualYield,
+            yieldUnit: action.yieldUnit,
+            storage: action.storage,
+            storageNotes: action.storageNotes,
+            reheatNotes: action.reheatNotes,
+            preparedSourceServings: action.preparedSourceServings,
+            elapsedMinutes: action.elapsedMinutes,
+            rememberTiming: action.rememberTiming,
           });
           setCookSessionId(null);
           navigate('today');
           announce('Food is ready. Nothing is logged until you confirm what you ate.');
           return true;
-        }
         case 'EXIT_COOK':
           setCookSessionId(null);
           navigate(cookReturn.current);
@@ -495,12 +338,12 @@ export function useMealbook() {
             today.choice.logId !== null ||
             today.choice.useId !== (compatibleUseId ?? null)
           ) {
-            commit((previous) =>
-              food.chooseToday(previous, date, experience.preferredSlot, batch.recipeId, {
-                batchId: batch.id,
-                useId: compatibleUseId,
-              }),
-            );
+            run({
+              type: 'today.choose',
+              recipeId: batch.recipeId,
+              batchId: batch.id,
+              useId: compatibleUseId,
+            });
           }
           const profile = experience.recipeProfiles[batch.recipeId];
           const plannedActualUnits =
@@ -526,225 +369,106 @@ export function useMealbook() {
         case 'EAT_CONFIRM': {
           const request = eatingRef.current;
           if (!request) return false;
-          const today = food.today(value, date, experience.preferredSlot);
-          commit((previous) =>
-            food.consume(previous, request.batchId, action.units, action.date, request.logId, {
-              ...(action.date === date
-                ? { dailyChoiceId: today.choice?.id, useId: request.useId ?? undefined }
-                : {}),
-            }),
-          );
+          run({
+            type: 'food.consume',
+            logId: request.logId,
+            batchId: request.batchId,
+            units: action.units,
+            date: action.date,
+            useId: request.useId,
+          });
           eatingRef.current = null;
           setEating(null);
           setUndoLogId(request.logId);
           announce('Portion logged and available food updated.');
           return true;
         }
-        case 'UNDO_LOG':
-          commit((previous) => food.undoConsumption(previous, action.logId));
+        case 'UNDO_LOG': {
+          const { result } = run({ type: 'food.undo', logId: action.logId });
           setUndoLogId(null);
           announce(
-            value.logs.find((entry) => entry.id === action.logId)?.batchId
+            result.linkedToBatch
               ? 'Undone. The log and available portions are restored.'
               : 'Food log removed. Unrelated prepared portions are unchanged.',
           );
           return true;
+        }
         case 'UPDATE_PROFILE':
-          commit((previous) => food.updateProfile(previous, action.recipeId, action.profile));
+          run({ type: 'recipe.setProfile', recipeId: action.recipeId, profile: action.profile });
           announce('Your recipe preferences are saved.');
           return true;
         case 'UPDATE_RECIPE': {
-          const previousRecipe = value.recipes.find((recipe) => recipe.id === action.recipe.id);
-          if (!previousRecipe) throw new Error('That recipe is no longer in your book.');
-          let candidate = action.recipe;
-          const compositionChanged =
-            ingredientSignature(previousRecipe) !== ingredientSignature(candidate);
-          if (compositionChanged && !action.nutritionConfirmed) {
-            candidate = {
-              ...candidate,
-              nutrition: emptyNutrition(),
-              nutritionBasis: 'unspecified',
-              dataGaps: [
-                ...new Set([
-                  ...candidate.dataGaps,
-                  'Ingredients changed; nutrition needs your review.',
-                ]),
-              ],
-            };
-          }
-          if (action.nutritionConfirmed)
-            candidate = {
-              ...candidate,
-              nutritionBasis: 'per_serving',
-              nutritionEvidence:
-                'Per-serving values explicitly reviewed by you after editing. Original written source remains available.',
-            };
-          if (
-            !compositionChanged &&
-            !action.nutritionConfirmed &&
-            previousRecipe.nutritionBasis === 'per_serving' &&
-            previousRecipe.baseServings &&
-            candidate.baseServings &&
-            previousRecipe.baseServings !== candidate.baseServings
-          ) {
-            const factor = previousRecipe.baseServings / candidate.baseServings;
-            candidate = {
-              ...candidate,
-              nutrition: Object.fromEntries(
-                Object.entries(previousRecipe.nutrition).map(([key, amount]) => [
-                  key,
-                  amount === null ? null : amount * factor,
-                ]),
-              ) as Recipe['nutrition'],
-              nutritionEvidence:
-                'Per-serving nutrition adjusted for your changed yield; ingredient totals and original reported values are unchanged.',
-            };
-          }
-          const checked = validateRecipes([candidate])[0];
-          commit((previous) => ({
-            ...previous,
-            recipes: previous.recipes.map((recipe) =>
-              recipe.id === checked.id ? checked : recipe,
-            ),
-          }));
+          const { result } = run({
+            type: 'recipe.update',
+            recipe: action.recipe,
+            nutritionConfirmed: action.nutritionConfirmed,
+          });
           announce(
-            compositionChanged && !action.nutritionConfirmed
+            result.nutritionReset
               ? 'Recipe updated. Review nutrition for the new ingredients; existing cooked food and logs are unchanged.'
               : 'Recipe updated.',
           );
           return true;
         }
-        case 'ADD_RECIPE': {
-          const checked = validateRecipes([action.recipe])[0];
-          if (value.recipes.some((recipe) => recipe.id === checked.id))
-            throw new Error(
-              'This recipe is already in your book. Your version was not overwritten.',
-            );
-          commit((previous) => ({ ...previous, recipes: [...previous.recipes, checked] }));
+        case 'ADD_RECIPE':
+          run({ type: 'recipe.add', recipe: action.recipe });
           announce('Recipe added to your book.');
           return true;
-        }
-        case 'ADD_TO_WEEK': {
-          const week = planning.addRecipe(
-            value,
-            activeWeek(value),
-            action.recipeId,
-            action.sourceServings,
-            action.portions,
-            makeId('week'),
-            date,
-          );
-          commit((previous) => putWeek(previous, week));
+        case 'ADD_TO_WEEK':
+          run({
+            type: 'week.addRecipe',
+            newWeekId: makeId('week'),
+            recipeId: action.recipeId,
+            sourceServings: action.sourceServings,
+            portions: action.portions,
+          });
           setSelectedRecipeId(null);
           navigate('week');
           announce('Your recipe is selected in this week.');
           return true;
-        }
-        case 'MAKE_WEEK': {
-          const week = planning.proposeWeek(value, action.request, makeId('week'));
-          commit((previous) => {
-            const next = putWeek(previous, week);
-            return {
-              ...next,
-              experience: { ...next.experience!, lastPlanRequest: action.request },
-            };
-          });
+        case 'MAKE_WEEK':
+          run({ type: 'week.propose', weekId: makeId('week'), request: action.request });
           navigate('week');
           announce('Review your batch choices and grocery impact before confirming.');
           return true;
-        }
         case 'SELECT_WEEK':
-          if (!experience.weeks.some((week) => week.id === action.weekId))
-            throw new Error('That week is not available.');
-          commit((previous) => ({
-            ...previous,
-            experience: { ...previous.experience!, activeWeekId: action.weekId },
-          }));
+          run({ type: 'week.select', weekId: action.weekId });
           return true;
-        case 'CONFIRM_WEEK': {
-          const week = requireWeek(value);
-          const confirmed = { ...week, confirmed: true };
-          commit((previous) => reconcileToday(putWeek(previous, confirmed), date, 'confirm'));
+        case 'CONFIRM_WEEK':
+          run({ type: 'week.confirm' });
           announce('Week confirmed. Your grocery list is ready to review.');
           return true;
-        }
-        case 'REROLL_WEEK': {
-          const week = requireWeek(value);
-          if (!experience.lastPlanRequest)
-            throw new Error(
-              'Choose cooking windows and portion preferences before generating fresh ideas for this imported week.',
-            );
-          const next = planning.rerollWeek(value, week, experience.lastPlanRequest);
-          commit((previous) => putWeek(previous, next));
+        case 'REROLL_WEEK':
+          run({ type: 'week.reroll' });
           announce('Fresh choices suggested. Locked and prepared food are unchanged.');
           return true;
-        }
-        case 'LOCK_CHOICE': {
-          const week = requireWeek(value);
-          const next = {
-            ...week,
-            choices: week.choices.map((choice) =>
-              choice.id === action.choiceId ? { ...choice, locked: action.locked } : choice,
-            ),
-          };
-          commit((previous) => putWeek(previous, next));
+        case 'LOCK_CHOICE':
+          run({ type: 'week.lockChoice', choiceId: action.choiceId, locked: action.locked });
           return true;
-        }
-        case 'CHANGE_PORTIONS': {
-          const next = planning.changePortions(
-            value,
-            requireWeek(value),
-            action.choiceId,
-            action.portions,
-          );
-          commit((previous) => putWeek(previous, next));
-          return true;
-        }
-        case 'MOVE_USE': {
-          const next = planning.changeUse(value, requireWeek(value), action.useId, {
-            date: action.date,
-            slot: action.slot,
+        case 'CHANGE_PORTIONS':
+          run({
+            type: 'week.changePortions',
+            choiceId: action.choiceId,
+            portions: action.portions,
           });
-          commit((previous) => putWeek(previous, next));
           return true;
-        }
-        case 'SKIP_USE': {
-          const next = planning.changeUse(value, requireWeek(value), action.useId, {
-            skipped: action.skipped,
-          });
-          commit((previous) => putWeek(previous, next));
+        case 'MOVE_USE':
+          run({ type: 'week.moveUse', useId: action.useId, date: action.date, slot: action.slot });
           return true;
-        }
-        case 'MOVE_WINDOW': {
-          const next = planning.moveWindow(value, requireWeek(value), action.windowId, {
+        case 'SKIP_USE':
+          run({ type: 'week.skipUse', useId: action.useId, skipped: action.skipped });
+          return true;
+        case 'MOVE_WINDOW':
+          run({
+            type: 'week.moveWindow',
+            windowId: action.windowId,
             date: action.date,
             startTime: action.startTime,
             availableMinutes: action.availableMinutes,
           });
-          commit((previous) => putWeek(previous, next));
           return true;
-        }
         case 'PREVIEW_SWAP': {
-          const week = experience.weeks.find((item) => item.id === action.request.weekId);
-          if (!week) throw new Error('That week could not be found.');
-          const proposedWeek = planning.swap(value, week, action.request);
-          const before = purchases.buildList(value, week);
-          const previewState = putWeek(value, proposedWeek);
-          const after = purchases.buildList(previewState, proposedWeek);
-          const oldItems = new Map(before.items.map((item) => [item.key, item]));
-          const newItems = new Map(after.items.map((item) => [item.key, item]));
-          const changes: SwapPreview['changes'] = [];
-          for (const key of new Set([...oldItems.keys(), ...newItems.keys()])) {
-            const old = oldItems.get(key),
-              next = newItems.get(key);
-            if (old?.displayQuantity !== next?.displayQuantity)
-              changes.push({
-                name: next?.name ?? old!.name,
-                before: old?.displayQuantity ?? 'Not needed',
-                after: next?.displayQuantity ?? 'No longer needed',
-              });
-          }
-          const preview: SwapPreview = { request: action.request, proposedWeek, changes };
+          const preview: SwapPreview = previewSwap(value, action.request);
           swapRef.current = preview;
           setSwapPreview(preview);
           return true;
@@ -752,12 +476,7 @@ export function useMealbook() {
         case 'APPLY_SWAP': {
           const preview = swapRef.current;
           if (!preview) return false;
-          // Recompute against the live state: a cooking completion or portion
-          // change while the preview is open cannot be overwritten by a stale draft.
-          const week = experience.weeks.find((item) => item.id === preview.request.weekId);
-          if (!week) throw new Error('That week changed while the preview was open.');
-          const next = planning.swap(value, week, preview.request);
-          commit((previous) => reconcileToday(putWeek(previous, next), date, 'swap'));
+          run({ type: 'week.swap', request: preview.request });
           swapRef.current = null;
           setSwapPreview(null);
           announce('Recipe swapped. Review changed grocery amounts.');
@@ -768,159 +487,84 @@ export function useMealbook() {
           setSwapPreview(null);
           return true;
         case 'SHOP_RECIPE': {
-          const recipe = value.recipes.find((item) => item.id === action.recipeId);
-          const week = activeWeek(value);
-          const included = week?.choices.some((choice) => {
-            if (
-              choice.recipeId !== action.recipeId ||
-              choice.readyBatchId ||
-              Math.abs(choice.sourceServings - action.sourceServings) > 0.000001
-            )
-              return false;
-            const running = value.experience!.sessions.find(
-              (session) =>
-                session.weekId === week.id &&
-                session.recipeId === choice.recipeId &&
-                !session.finishedAt,
-            );
-            return (
-              recipe &&
-              (!running ||
-                ingredientSignature(running.recipeSnapshot) === ingredientSignature(recipe))
-            );
+          const { result } = run({
+            type: 'shop.addRecipe',
+            intentId: makeId('oneoff'),
+            recipeId: action.recipeId,
+            sourceServings: action.sourceServings,
+            sourceYield: action.sourceYield,
           });
-          if (included) {
-            setSelectedRecipeId(null);
-            navigate('shopping');
-            announce('This batch is already in your week. Shopping amounts are unchanged.');
-            return true;
-          }
-          commit((previous) =>
-            purchases.addIntent(
-              previous,
-              action.recipeId,
-              action.sourceServings,
-              makeId('oneoff'),
-              action.sourceYield,
-            ),
-          );
           setSelectedRecipeId(null);
           navigate('shopping');
-          announce('This recipe is in your shopping list. No weekly setup needed.');
+          announce(
+            result.alreadyInWeek
+              ? 'This batch is already in your week. Shopping amounts are unchanged.'
+              : 'This recipe is in your shopping list. No weekly setup needed.',
+          );
           return true;
         }
         case 'REMOVE_SHOP_INTENT':
-          commit((previous) => ({
-            ...previous,
-            experience: {
-              ...previous.experience!,
-              oneOffs: previous.experience!.oneOffs.map((intent) =>
-                intent.id === action.intentId ? { ...intent, fulfilled: true } : intent,
-              ),
-            },
-          }));
+          run({ type: 'shop.removeIntent', intentId: action.intentId });
           return true;
-        case 'COVER_ITEM': {
-          const list = purchases.buildList(value, activeWeek(value));
-          const item = list.items.find((line) => line.key === action.itemKey);
-          if (!item) throw new Error('That grocery requirement changed. Review the current list.');
-          commit((previous) => {
-            const next = purchases.cover(
-              previous,
-              item,
-              { kind: action.kind, quantity: action.quantity },
-              makeId('purchase'),
-            );
-            const changes = { ...next.experience!.groceryChanges };
-            delete changes[item.key];
-            return { ...next, experience: { ...next.experience!, groceryChanges: changes } };
+        case 'COVER_ITEM':
+          run({
+            type: 'shop.cover',
+            purchaseId: makeId('purchase'),
+            itemKey: action.itemKey,
+            kind: action.kind,
+            quantity: action.quantity,
           });
           return true;
-        }
         case 'MATCH_PURCHASE':
-          commit((previous) =>
-            purchases.approveMatch(
-              previous,
-              action.names,
-              action.purchaseName,
-              action.prepNote,
-              makeId('match'),
-            ),
-          );
+          run({
+            type: 'shop.match',
+            matchId: makeId('match'),
+            names: action.names,
+            purchaseName: action.purchaseName,
+            prepNote: action.prepNote,
+          });
           announce(
             'Purchase items matched. Original recipe preparation is preserved; review any added prep time.',
           );
           return true;
         case 'SET_AISLE':
-          if (!action.aisle.trim()) throw new Error('Choose a grocery aisle.');
-          commit((previous) => ({
-            ...previous,
-            experience: {
-              ...previous.experience!,
-              aisleOverrides: {
-                ...previous.experience!.aisleOverrides,
-                [action.itemKey]: action.aisle.trim(),
-              },
-            },
-          }));
+          run({ type: 'shop.setAisle', itemKey: action.itemKey, aisle: action.aisle });
           return true;
         case 'ADD_MANUAL_ITEM':
-          if (!action.name.trim()) throw new Error('Add an item name.');
-          commit((previous) => ({
-            ...previous,
-            experience: {
-              ...previous.experience!,
-              manualItems: [
-                ...previous.experience!.manualItems,
-                {
-                  id: makeId('manual'),
-                  name: action.name.trim(),
-                  quantityText: action.quantityText.trim(),
-                  checked: false,
-                },
-              ],
-            },
-          }));
+          run({
+            type: 'shop.addManual',
+            itemId: makeId('manual'),
+            name: action.name,
+            quantityText: action.quantityText,
+          });
           return true;
         case 'TOGGLE_MANUAL_ITEM':
-        case 'REMOVE_MANUAL_ITEM': {
-          const update = <T extends { id: string; checked: boolean }>(items: T[]): T[] =>
-            action.type === 'REMOVE_MANUAL_ITEM'
-              ? items.filter((item) => item.id !== action.id)
-              : items.map((item) =>
-                  item.id === action.id ? { ...item, checked: !item.checked } : item,
-                );
-          commit((previous) => ({
-            ...previous,
-            manualShopping: Object.fromEntries(
-              Object.entries(previous.manualShopping).map(([key, items]) => [key, update(items)]),
-            ),
-            experience: {
-              ...previous.experience!,
-              manualItems: update(previous.experience!.manualItems),
-            },
-          }));
+          run({ type: 'shop.toggleManual', itemId: action.id });
           return true;
-        }
+        case 'REMOVE_MANUAL_ITEM':
+          run({ type: 'shop.removeManual', itemId: action.id });
+          return true;
         case 'ADD_RECIPE_LOG': {
-          const recipe = value.recipes.find((item) => item.id === action.recipeId);
-          if (!recipe) throw new Error('Choose a saved recipe to log.');
-          const entry = createConsumption(recipe, action.servings, action.date);
-          commit((previous) => ({ ...previous, logs: [...previous.logs, entry] }));
-          setUndoLogId(entry.id);
+          const { result } = run({
+            type: 'log.addRecipe',
+            logId: makeId('log'),
+            recipeId: action.recipeId,
+            servings: action.servings,
+            date: action.date,
+          });
+          setUndoLogId(result.logId);
           announce('Actual food logged. No unrelated prepared batch was changed.');
           return true;
         }
-        case 'ADD_MANUAL_LOG':
-          if (value.logs.some((entry) => entry.id === action.entry.id)) return true;
-          commit((previous) =>
-            validateState({ ...previous, logs: [...previous.logs, action.entry] }),
-          );
+        case 'ADD_MANUAL_LOG': {
+          const { result } = run({ type: 'log.addManual', entry: action.entry });
+          if (result.duplicate) return true;
           setUndoLogId(action.entry.id);
           announce('Food logged.');
           return true;
+        }
         case 'SET_TARGETS':
-          commit((previous) => validateState({ ...previous, targets: action.targets }));
+          run({ type: 'targets.set', targets: action.targets });
           return true;
         case 'EXPORT_BACKUP':
           downloadJson(value, `mealbook-backup-${date}.json`);
@@ -964,6 +608,8 @@ export function useMealbook() {
       restoring.current = false;
     }
     current.current = next;
+    // The restored book replaces this one: earlier operations no longer apply to it.
+    record.current = { ledger: emptyLedger(), revision: record.current.revision + 1 };
     setState(next);
     setLoadError('');
     setLoaded(true);
@@ -987,11 +633,7 @@ export function useMealbook() {
       )
     )
       throw new Error('Import cancelled.');
-    commit((previous) => {
-      const merged = new Map(previous.recipes.map((recipe) => [recipe.id, recipe]));
-      for (const recipe of imported) merged.set(recipe.id, recipe);
-      return { ...previous, recipes: [...merged.values()] };
-    });
+    run({ type: 'recipe.import', recipes: imported });
     announce('Recipes imported into your book.');
   };
   const openExistingSource = (videoId: string): boolean => {
