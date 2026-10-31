@@ -54,6 +54,15 @@ const finiteNonNegative = (value: unknown, label: string): number => {
   return value;
 };
 
+/** A day: longer than any single cooking session the planner should fit into a window. */
+const MAX_COOK_MINUTES = 24 * 60;
+
+const learnedTiming = (value: unknown): number => {
+  const minutes = finitePositive(value, 'Cooking minutes');
+  if (minutes > MAX_COOK_MINUTES) return fail('Cooking minutes must be at most 24 hours.');
+  return minutes;
+};
+
 const mealSlot = (value: unknown, label: string): MealType => {
   if (typeof value !== 'string' || !mealTypes.includes(value as MealType))
     return fail(`${label} must be a supported meal slot.`);
@@ -113,6 +122,19 @@ const emptyExperience = (): ExperienceState => ({
   groceryChanges: {},
   aisleOverrides: {},
   preferredSlot: 'dinner',
+});
+
+const newRecipeProfile = (yieldUnit: string): RecipeProfile => ({
+  yieldUnit,
+  sourceUnitsPerPortion: 1,
+  portionSizeConfirmed: false,
+  activeMinutes: null,
+  elapsedMinutes: null,
+  reheatMinutes: null,
+  equipment: [],
+  equipmentConfirmed: false,
+  reheatNotes: '',
+  notes: '',
 });
 
 const choiceForLegacyMeal = (plan: WeekPlan, recipeId: string, index: number): BatchChoice => {
@@ -721,6 +743,7 @@ export const experienceEngine: ExperienceEngine = {
       return fail('Storage must be a supported storage state.');
     const storageNotes = nonEmptyText(input.storageNotes, 'Storage notes', true, 32_000);
     const reheatNotes = nonEmptyText(input.reheatNotes, 'Reheat notes', true, 32_000);
+    const learnedMinutes = input.rememberTiming ? learnedTiming(input.elapsedMinutes) : null;
     const finishedAt = now();
     const batch: PreparedBatch = {
       id: batchId,
@@ -763,6 +786,22 @@ export const experienceEngine: ExperienceEngine = {
       session.recipeId,
       batch.id,
     );
+    if (learnedMinutes !== null) {
+      // A confirmed cook teaches the recipe how long this amount takes, so later weeks can fit it into a window.
+      const existing = experience.recipeProfiles[session.recipeId];
+      experience = {
+        ...experience,
+        recipeProfiles: {
+          ...experience.recipeProfiles,
+          [session.recipeId]: {
+            ...(existing ?? newRecipeProfile(yieldUnit)),
+            elapsedMinutes: learnedMinutes,
+            timingSourceServings: session.sourceServings,
+            timingObservedAt: finishedAt,
+          },
+        },
+      };
+    }
     return withExperience(working, experience);
   },
 
@@ -877,6 +916,26 @@ export const experienceEngine: ExperienceEngine = {
       return fail('Profile confirmations must be true or false.');
     if (new Set(checked.equipment).size !== checked.equipment.length)
       return fail('Equipment must not contain duplicates.');
+    // Timing provenance follows the elapsed time: kept while it is unchanged, cleared when it is edited by hand.
+    const previous = working.experience!.recipeProfiles[recipeId];
+    const keepsTiming =
+      previous !== undefined && previous.elapsedMinutes === checked.elapsedMinutes;
+    checked.timingSourceServings =
+      profile.timingSourceServings === undefined
+        ? keepsTiming
+          ? (previous.timingSourceServings ?? null)
+          : null
+        : profile.timingSourceServings === null
+          ? null
+          : finitePositive(profile.timingSourceServings, 'Timing recipe servings');
+    checked.timingObservedAt =
+      profile.timingObservedAt === undefined
+        ? keepsTiming
+          ? (previous.timingObservedAt ?? null)
+          : null
+        : profile.timingObservedAt === null
+          ? null
+          : nonEmptyText(profile.timingObservedAt, 'Timing observation time');
     return withExperience(working, {
       ...working.experience!,
       recipeProfiles: { ...working.experience!.recipeProfiles, [recipeId]: checked },

@@ -53,6 +53,9 @@ export interface ExperienceEngine {
       storageNotes: string;
       reheatNotes: string;
       preparedSourceServings?: number;
+      /** Confirmed start-to-ready minutes for this cook; stored on the recipe profile only when `rememberTiming` is true. */
+      elapsedMinutes?: number | null;
+      rememberTiming?: boolean;
     },
   ): AppState;
   availableUnits(state: AppState, batchId: string): number;

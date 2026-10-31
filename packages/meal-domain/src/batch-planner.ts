@@ -86,23 +86,34 @@ const profileFor = (state: AppState, recipeId: string): RecipeProfile =>
 const sourceUnitsFor = (profile: RecipeProfile): number =>
   finitePositive(profile.sourceUnitsPerPortion) ? profile.sourceUnitsPerPortion : 1;
 
-const timingConfirmed = (profile: RecipeProfile): boolean =>
-  finiteNonNegative(profile.activeMinutes) &&
-  finiteNonNegative(profile.elapsedMinutes) &&
-  profile.equipmentConfirmed;
+const UNKNOWN_TIME =
+  'Cooking time is unknown. Finish a cook of this recipe or enter its time to fit it into a window; source prep and cook labels are not treated as elapsed time.';
 
-const timingGap = (profile: RecipeProfile): string => {
-  const gaps: string[] = [];
-  if (!finiteNonNegative(profile.activeMinutes)) gaps.push('active time');
-  if (!finiteNonNegative(profile.elapsedMinutes)) gaps.push('elapsed time');
-  if (!profile.equipmentConfirmed) gaps.push('equipment');
-  return gaps.length
-    ? `Timing needs confirmation: ${gaps.join(', ')} are not confirmed. Source prep and cook labels are not treated as elapsed time.`
-    : 'Timing needs confirmation.';
+const amount = (value: number): string => String(Number(value.toFixed(2)));
+
+/**
+ * Elapsed minutes a batch occupies in a cooking window, or why they are unknown. Windows are filled
+ * sequentially, so confirmed elapsed time for this exact amount is enough; time is never scaled.
+ */
+const windowTiming = (
+  profile: RecipeProfile,
+  recipe: Recipe,
+  sourceServings: number,
+): { minutes: number } | { gap: string } => {
+  if (!finiteNonNegative(profile.elapsedMinutes)) return { gap: UNKNOWN_TIME };
+  const basis = profile.timingSourceServings ?? recipe.baseServings;
+  if (!finitePositive(basis))
+    return {
+      gap: 'Recipe yield is unknown, so the confirmed time cannot be matched to this batch amount.',
+    };
+  if (Math.abs(basis - sourceServings) >= epsilon)
+    return {
+      gap: profile.timingObservedAt
+        ? `Your timed cook was ${amount(basis)} recipe servings; this batch is ${amount(sourceServings)}. Time for a different amount is not assumed.`
+        : 'Quantity differs from the amount the cooking time was confirmed for; confirm the time for this amount before claiming it fits.',
+    };
+  return { minutes: profile.elapsedMinutes };
 };
-
-const sourceDoseConfirmed = (recipe: Recipe, sourceServings: number): boolean =>
-  finitePositive(recipe.baseServings) && Math.abs(recipe.baseServings - sourceServings) < epsilon;
 
 const validateRequest = (request: BatchPlanRequest): void => {
   if (!dateOnly(request.weekStart)) throw new Error('Week start must be a real YYYY-MM-DD date.');
@@ -342,7 +353,6 @@ const baseExplanations = (recipe: Recipe, profile: RecipeProfile, selected: Reci
     );
   if (recipe.baseServings === null)
     explanations.push('Recipe yield is unknown, so grocery quantities will need review.');
-  if (!timingConfirmed(profile)) explanations.push(timingGap(profile));
   return explanations;
 };
 
@@ -354,6 +364,7 @@ interface PlannedRecipe {
 interface AssignedWindow {
   windowId: string | null;
   timingFit: BatchChoice['timingFit'];
+  gap?: string;
 }
 
 interface ReadyAllocation {
@@ -445,17 +456,21 @@ const assignWindows = (
       (profileFor(state, left.recipe.id).elapsedMinutes ?? -1),
   );
   for (const plan of sorted) {
-    const profile = profileFor(state, plan.recipe.id);
     if (plan.existing) {
       result.set(plan.recipe.id, { windowId: null, timingFit: 'unknown' });
       continue;
     }
-    if (!timingConfirmed(profile) || !sourceDoseConfirmed(plan.recipe, plan.sourceServings)) {
+    const timing = windowTiming(
+      profileFor(state, plan.recipe.id),
+      plan.recipe,
+      plan.sourceServings,
+    );
+    if ('gap' in timing) {
       if (strict) return null;
-      result.set(plan.recipe.id, { windowId: null, timingFit: 'unknown' });
+      result.set(plan.recipe.id, { windowId: null, timingFit: 'unknown', gap: timing.gap });
       continue;
     }
-    const duration = profile.elapsedMinutes!;
+    const duration = timing.minutes;
     const fitting = windows
       .filter((window) => (remaining.get(window.id) ?? 0) >= duration)
       .sort(
@@ -463,7 +478,11 @@ const assignWindows = (
       );
     if (fitting.length === 0) {
       if (strict) return null;
-      result.set(plan.recipe.id, { windowId: null, timingFit: 'over_budget' });
+      result.set(plan.recipe.id, {
+        windowId: null,
+        timingFit: 'over_budget',
+        gap: `No cooking window has ${amount(duration)} minutes left for this batch.`,
+      });
       continue;
     }
     const window = fitting[0];
@@ -499,34 +518,28 @@ const chooseScheduledRecipes = (
       .map((recipe) => recipe.id),
   );
   const attempts = Math.max(20, Math.min(300, candidates.length * 20));
-  let strictNeedsSourceDose = false;
+  let strictNeedsTiming = false;
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     const recipes = chooseRecipes(candidates, count, protectedIds, preferredIds);
     const portions = portionsFor(recipes);
     const plans = plannedRecipes(state, recipes, portions, request);
     if (request.strictTiming) {
       const cookPlans = plans.filter((plan) => !plan.existing);
-      strictNeedsSourceDose ||= cookPlans.some(
+      const untimed = cookPlans.some(
         (plan) =>
-          !timingConfirmed(profileFor(state, plan.recipe.id)) ||
-          !sourceDoseConfirmed(plan.recipe, plan.sourceServings),
+          'gap' in
+          windowTiming(profileFor(state, plan.recipe.id), plan.recipe, plan.sourceServings),
       );
-      if (
-        cookPlans.some(
-          (plan) =>
-            !timingConfirmed(profileFor(state, plan.recipe.id)) ||
-            !sourceDoseConfirmed(plan.recipe, plan.sourceServings),
-        )
-      )
-        continue;
+      strictNeedsTiming ||= untimed;
+      if (untimed) continue;
       if (cookPlans.length > 0 && request.windows.length === 0) continue;
     }
     const assignments = assignWindows(state, plans, request.windows, request.strictTiming);
     if (assignments) return { recipes, assignments, portions };
   }
-  if (request.strictTiming && strictNeedsSourceDose) {
+  if (request.strictTiming && strictNeedsTiming) {
     throw new Error(
-      'Strict timing applies only to a recipe with confirmed active time, elapsed time, equipment, and its exact published source dose. Change the dose with timing review or turn off strict timing.',
+      'Strict timing applies only to batches whose cooking time is confirmed for that exact amount. Finish a cook or enter the time for this amount, or turn off strict timing.',
     );
   }
   if (request.strictTiming && request.windows.length === 0)
@@ -693,6 +706,7 @@ const makeDraftChoices = (
         baseExplanations(recipe, profile, recipes),
         'Reuses the explicit one-off shopping intention, so it will not be procured twice.',
       );
+      if (assigned.gap) explanations = addUnique(explanations, assigned.gap);
       if (portions + epsilon < desiredPortions)
         explanations = addUnique(
           explanations,
@@ -721,6 +735,7 @@ const makeDraftChoices = (
     }
 
     let explanations = baseExplanations(recipe, profile, recipes);
+    if (assigned.gap) explanations = addUnique(explanations, assigned.gap);
     if (ready) {
       explanations = addUnique(
         explanations,
@@ -812,17 +827,10 @@ const sequentialTiming = (
       choice.timingFit = 'unknown';
       return choice;
     }
-    if (!timingConfirmed(profile)) {
+    const timing = windowTiming(profile, recipe, choice.sourceServings);
+    if ('gap' in timing) {
       choice.timingFit = 'unknown';
-      choice.explanations = addUnique(choice.explanations, timingGap(profile));
-      return choice;
-    }
-    if (!sourceDoseConfirmed(recipe, choice.sourceServings)) {
-      choice.timingFit = 'unknown';
-      choice.explanations = addUnique(
-        choice.explanations,
-        'Quantity changed from the published source dose; confirm timing and equipment capacity before claiming this batch fits.',
-      );
+      choice.explanations = addUnique(choice.explanations, timing.gap);
       return choice;
     }
     if (!choice.windowId || !capacity.has(choice.windowId)) {
@@ -834,7 +842,7 @@ const sequentialTiming = (
       return choice;
     }
     const used = consumed.get(choice.windowId) ?? 0;
-    const required = profile.elapsedMinutes!;
+    const required = timing.minutes;
     const available = capacity.get(choice.windowId)!;
     if (used + required > available) {
       choice.timingFit = 'over_budget';

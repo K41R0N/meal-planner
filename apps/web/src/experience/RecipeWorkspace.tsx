@@ -1292,7 +1292,13 @@ export function RecipeProfileForm({
         </label>
         <label className="mb-field">
           <span>
-            Confirmed elapsed minutes <small>For the published recipe amount.</small>
+            Confirmed elapsed minutes{' '}
+            <small>
+              {profile.timingObservedAt &&
+              draft.elapsedMinutes === numberText(profile.elapsedMinutes)
+                ? `Measured when you cooked ${displayNumber(profile.timingSourceServings ?? 0)} recipe servings on ${new Date(profile.timingObservedAt).toLocaleDateString()}. Editing it makes it apply to the published amount.`
+                : 'For the published recipe amount.'}
+            </small>
           </span>
           <input
             type="text"
