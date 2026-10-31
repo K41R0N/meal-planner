@@ -209,7 +209,8 @@ test('strict timing never treats missing data as zero and edits preserve immutab
   );
 });
 
-test('ready reuse uses immutable batch yield arithmetic, respects saved allocations, and protected choices survive reroll', () => {
+/** A frozen ready batch with 6 portions left and one saved use on 2026-10-27 that reserves a portion. */
+const readyReuseFixture = () => {
   const dinner = recipe('ready-dinner');
   const other = recipe('other-dinner');
   const app = state([dinner, other], { [dinner.id]: profile(), [other.id]: profile() });
@@ -298,6 +299,13 @@ test('ready reuse uses immutable batch yield arithmetic, respects saved allocati
     reuseReady: true,
     reuseOneOffs: false,
   };
+  return { app, request, dinner, other };
+};
+
+test('ready reuse uses immutable batch yield arithmetic, respects saved allocations, and protected choices survive reroll', (t) => {
+  // Saved uses reserve ready food only from today on, so pin the clock to the fixture's dates.
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-27T12:00:00.000Z') });
+  const { app, request, dinner, other } = readyReuseFixture();
   const proposed = batchPlanning.proposeWeek(app, request, 'ready-week');
   const ready = proposed.choices[0];
   assert.deepEqual(
@@ -334,6 +342,26 @@ test('ready reuse uses immutable batch yield arithmetic, respects saved allocati
     dinner.id,
     'a locked choice is preserved even if a new reroll filter would exclude it',
   );
+});
+
+test('a saved use reserves ready food through the end of the local day, not the UTC day', (t) => {
+  const previousTz = process.env.TZ;
+  t.after(() => {
+    if (previousTz === undefined) delete process.env.TZ;
+    else process.env.TZ = previousTz;
+  });
+  const readyPortions = (timeZone: string, instant: string): number => {
+    process.env.TZ = timeZone;
+    t.mock.timers.enable({ apis: ['Date'], now: Date.parse(instant) });
+    const { app, request } = readyReuseFixture();
+    const portions = batchPlanning.proposeWeek(app, request, 'boundary-week').choices[0].portions;
+    t.mock.timers.reset();
+    return portions;
+  };
+  // 23:30 on 27 October in New York is already 28 October in UTC; tonight's use still reserves.
+  assert.equal(readyPortions('America/New_York', '2026-10-28T03:30:00.000Z'), 5);
+  // 00:30 on 28 October in Tokyo is still 27 October in UTC; yesterday's use no longer reserves.
+  assert.equal(readyPortions('Asia/Tokyo', '2026-10-27T15:30:00.000Z'), 6);
 });
 
 test('integral targets are apportioned as whole portions and scheduled in people-sized repeated uses', () => {

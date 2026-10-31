@@ -25,6 +25,10 @@ export interface RecipeProfile {
   equipmentConfirmed: boolean;
   reheatNotes: string;
   notes: string;
+  /** Recipe-serving amount that `elapsedMinutes` was measured or entered for; absent or null means the published recipe amount. */
+  timingSourceServings?: number | null;
+  /** When `elapsedMinutes` came from a finished cooking session; absent or null means it was entered by hand. */
+  timingObservedAt?: string | null;
 }
 export interface CookingTimer {
   id: string;
@@ -276,6 +280,8 @@ export type MealbookAction =
       storageNotes: string;
       reheatNotes: string;
       preparedSourceServings?: number;
+      elapsedMinutes?: number | null;
+      rememberTiming?: boolean;
     }
   | { type: 'EXIT_COOK' }
   | { type: 'EAT_OPEN'; batchId: string; units?: number; useId?: string }

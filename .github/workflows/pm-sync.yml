@@ -1,0 +1,97 @@
+name: PM board sync
+
+# On pushes to main, creates or updates the labels and milestones declared in .github/pm/board.json
+# (milestones mirror the roadmap stages; `aliases` rename an existing milestone in place),
+# closes a `retired` milestone only once it has no open issues, then assigns open issues
+# titled "[S<stage>] ..." without a milestone to that stage's milestone.
+# Never deletes, renames unrelated items or overrides a milestone already set on an issue.
+on:
+  push:
+    # Only the reviewed board definition on the default branch may change repository metadata.
+    branches: [main]
+    paths:
+      - .github/pm/board.json
+      - .github/workflows/pm-sync.yml
+  issues:
+    types: [opened, edited]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: pm-board-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const board = JSON.parse(fs.readFileSync('.github/pm/board.json', 'utf8'));
+            const { owner, repo } = context.repo;
+            const changes = [];
+
+            const labels = await github.paginate(github.rest.issues.listLabelsForRepo, { owner, repo, per_page: 100 });
+            const labelsByName = new Map(labels.map((label) => [label.name.toLowerCase(), label]));
+            for (const label of board.labels) {
+              const existing = labelsByName.get(label.name.toLowerCase());
+              if (!existing) {
+                await github.rest.issues.createLabel({ owner, repo, ...label });
+                changes.push(['label', label.name, 'created']);
+              } else if (existing.name !== label.name || existing.color !== label.color || (existing.description ?? '') !== label.description) {
+                await github.rest.issues.updateLabel({ owner, repo, name: existing.name, new_name: label.name, color: label.color, description: label.description });
+                changes.push(['label', label.name, 'updated']);
+              }
+            }
+
+            const milestones = await github.paginate(github.rest.issues.listMilestones, { owner, repo, state: 'all', per_page: 100 });
+            const milestonesByKey = new Map(milestones.map((milestone) => [milestone.title.split(' ')[0], milestone]));
+            for (const milestone of board.milestones) {
+              const existing = [milestone.key, ...(milestone.aliases ?? [])].map((key) => milestonesByKey.get(key)).find(Boolean);
+              if (!existing) {
+                const created = await github.rest.issues.createMilestone({ owner, repo, title: milestone.title, description: milestone.description });
+                changes.push(['milestone', `${milestone.title} (#${created.data.number})`, 'created']);
+              } else if (existing.title !== milestone.title || (existing.description ?? '') !== milestone.description) {
+                await github.rest.issues.updateMilestone({ owner, repo, milestone_number: existing.number, title: milestone.title, description: milestone.description });
+                changes.push(['milestone', `${milestone.title} (#${existing.number})`, 'updated']);
+              }
+            }
+
+            for (const key of board.retired ?? []) {
+              const retired = milestonesByKey.get(key);
+              if (!retired || retired.state === 'closed') continue;
+              // The milestone's open_issues counter can lag after issues move; list the issues instead.
+              const { data: open } = await github.rest.issues.listForRepo({ owner, repo, milestone: String(retired.number), state: 'open', per_page: 1 });
+              if (open.length > 0) {
+                changes.push(['milestone', `${retired.title} (#${retired.number})`, 'not retired: open issues remain']);
+                continue;
+              }
+              await github.rest.issues.updateMilestone({ owner, repo, milestone_number: retired.number, state: 'closed' });
+              changes.push(['milestone', `${retired.title} (#${retired.number})`, 'retired (closed)']);
+            }
+
+            const current = await github.paginate(github.rest.issues.listMilestones, { owner, repo, state: 'open', per_page: 100 });
+            const numberByKey = new Map(current.map((milestone) => [milestone.title.split(' ')[0], milestone.number]));
+            const issues = context.eventName === 'issues'
+              ? [context.payload.issue]
+              : await github.paginate(github.rest.issues.listForRepo, { owner, repo, state: 'open', milestone: 'none', per_page: 100 });
+            for (const issue of issues) {
+              if (issue.pull_request || issue.milestone) continue;
+              const key = /^\[(S\d+A?)\]/.exec(issue.title)?.[1];
+              const number = key && numberByKey.get(key);
+              if (!number) continue;
+              await github.rest.issues.update({ owner, repo, issue_number: issue.number, milestone: number });
+              changes.push(['issue', `#${issue.number} → ${key}`, 'milestone set']);
+            }
+
+            core.summary.addHeading('PM board sync');
+            if (changes.length) core.summary.addTable([[{ data: 'Kind', header: true }, { data: 'Name', header: true }, { data: 'Change', header: true }], ...changes]);
+            else core.summary.addRaw('No changes; the board matches board.json.');
+            await core.summary.write();

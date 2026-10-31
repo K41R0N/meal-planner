@@ -281,6 +281,23 @@ const recipeProfile = (value: unknown, path: string): RecipeProfile => {
       max: MAX_NOTES,
     }),
     notes: text(value.notes, `${path}.notes`, { allowEmpty: true, max: MAX_NOTES }),
+    // Timing provenance arrived after version-one backups; absent fields stay absent.
+    ...(value.timingSourceServings === undefined
+      ? {}
+      : {
+          timingSourceServings: nullablePositive(
+            value.timingSourceServings,
+            `${path}.timingSourceServings`,
+          ),
+        }),
+    ...(value.timingObservedAt === undefined
+      ? {}
+      : {
+          timingObservedAt:
+            value.timingObservedAt === null
+              ? null
+              : timestamp(value.timingObservedAt, `${path}.timingObservedAt`),
+        }),
   };
 };
 

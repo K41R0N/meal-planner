@@ -421,6 +421,8 @@ export function useMealbook() {
               storageNotes: action.storageNotes,
               reheatNotes: action.reheatNotes,
               preparedSourceServings: action.preparedSourceServings,
+              elapsedMinutes: action.elapsedMinutes,
+              rememberTiming: action.rememberTiming,
             });
             const batch = completed.experience!.batches.find(
               (item) => item.sessionId === action.sessionId,
