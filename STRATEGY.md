@@ -1,6 +1,6 @@
 # Mealbook strategy
 
-Updated October 27, 2026. Mealbook is the working product name; trademark, domain and store-name clearance are not complete.
+Updated October 31, 2026. Mealbook is the working product name; trademark, domain and store-name clearance are not complete.
 
 ## The customer and the job
 
@@ -49,6 +49,16 @@ Ollaya/Laya may make recipe organization and preferences more useful or less cos
 Run a proposed six-week paid pilot with 30 qualified participants after the safety and product gates are satisfied. Predeclare directional decisions: 20 reach a usable week, 12 return to prepare another, 8 actually pay after the trial and 5 renew once. These are team hypotheses from the market research, not industry benchmarks or promised outcomes. Record denominators and reasons for dropout; a small selected group does not estimate mass-market conversion.
 
 The core measure is a **repeat useful prep week**: confirmed plan, usable shopping activity and at least one completed cooking session, with actual eating optional and tracked separately. Do not count an import, a calendar visit or a paid trial as equivalent. Retention and actual payment must precede scaling acquisition.
+
+## Tracks
+
+Where the work goes now, set on October 31 from [the direction evidence pass](docs/research/direction/2026-10-31-direction.md) (D016). The offering hypothesis above is unchanged.
+
+**A week that learns from what actually happened.** Capture, assistant access, macro targets and generated menus are documented by competitors; a week planned from the person's own book that then learns from real cooks is not. Finishing a cook already teaches the planner its time. Next, a batch teaches it the portions it really made, and ready food carries into the next week. Protein targets lead the goal work, with no medical framing.
+
+**One open, local-first record.** Every change to the food record goes through one set of typed commands in the shared domain code, so web, Android and the person's own assistant change the same records under the same rules. Data stays on the device by default, sync is optional, and Mealbook never hosts inference. Infrastructure must cost close to nothing to run until a pilot shows repeat use; providers and spending wait for an owner decision.
+
+**Count the middle of the funnel without reading anyone's food.** Useful and repeat weeks are derived on the device as content-free counts, first for the owner's weekly log, later for a consented pilot.
 
 ## What we will not become first
 

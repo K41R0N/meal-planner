@@ -8,6 +8,7 @@ Updated October 28, 2026. Begin with [the product truth](../PRODUCT.md), [strate
 |---|---|---|
 | What does the personal app actually do? | [PRODUCT.md](../PRODUCT.md) and [implementation evidence](experience/implementation-evidence.md) | Delivered core behavior; limitations explicit |
 | Who is it for and why might they pay? | [STRATEGY.md](../STRATEGY.md) | Product direction plus commercial hypotheses |
+| Why this direction, and what evidence supports it? | [Direction evidence pass](research/direction/2026-10-31-direction.md) | October 31 desk evidence; settles build direction, not price or channels |
 | What did we approve, propose or leave open? | [Decision registry](decisions/README.md) | Durable approval boundaries |
 | What is the next release milestone? | [Commercial roadmap](roadmap/commercial-release.md) | Proposed stage gates, not dates |
 | How should cards, hierarchy and interactions work? | [DESIGN.md](../DESIGN.md), [card system](reference/card-system.md), [interaction contract](experience/interaction-contract.md) | Approved cross-platform direction |
