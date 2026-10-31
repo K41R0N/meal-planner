@@ -18,7 +18,12 @@ const finitePositive = (value: unknown): value is number =>
 const finiteNonNegative = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value) && value >= 0;
 const now = (): string => new Date().toISOString();
-const today = (): string => now().slice(0, 10);
+/** The person's local calendar date, matching the date keys the UI writes; not the UTC date. */
+const today = (): string => {
+  const date = new Date();
+  const pad = (value: number): string => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+};
 const epsilon = 1e-9;
 
 const generatedId = (prefix: string, used: Set<string>): string => {
