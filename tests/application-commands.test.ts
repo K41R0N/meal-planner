@@ -142,6 +142,20 @@ test('a stale base revision is a conflict and changes nothing', () => {
   assert.equal(current.outcome.revision, moved.revision + 1);
 });
 
+test('a failure after the handler (normalization) is still a coded error', () => {
+  const broken = { ...createSnapshot(seeded()) };
+  // Today normalization rejects a slot the record does not know; the handler itself accepts it.
+  rejects(
+    () =>
+      send(broken, 'op-odd-slot', {
+        type: 'today.setSlot',
+        slot: 'midnight-snack' as unknown as 'lunch',
+      }),
+    'INVALID_INPUT',
+  );
+  assert.equal(broken.revision, 0);
+});
+
 test('a failing command leaves revision, ledger and state untouched, and is not recorded', () => {
   const ready = withBatch();
   rejects(() => send(ready, 'op-bad', consume('log-x', 99)), 'INVALID_INPUT');
@@ -172,6 +186,16 @@ test('envelopes need an operation ID, a real date and a known command', () => {
       }),
     'INVALID_INPUT',
   );
+  for (const date of ['2026-13-45', '2026-02-30'])
+    rejects(
+      () =>
+        executeCommand(snapshot, {
+          operationId: `op-${date}`,
+          command: { type: 'today.setSlot', slot: 'lunch' },
+          context: { date },
+        }),
+      'INVALID_INPUT',
+    );
   rejects(
     () =>
       executeCommand(snapshot, {

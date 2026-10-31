@@ -65,6 +65,15 @@ export function fingerprint(value: unknown): string {
 }
 
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+/** A real calendar date in YYYY-MM-DD form (rejects shapes such as 2026-13-45). */
+const isCalendarDate = (value: unknown): value is string => {
+  if (typeof value !== 'string' || !DATE_ONLY.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return (
+    date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+  );
+};
 
 export const activeWeek = (state: AppState): BatchWeek | null =>
   state.experience?.weeks.find((week) => week.id === state.experience?.activeWeekId) ?? null;
@@ -674,7 +683,7 @@ export function executeCommand<C extends ApplicationCommand>(
   const { operationId, command, context } = envelope;
   if (typeof operationId !== 'string' || !operationId.trim())
     throw new ApplicationError('INVALID_INPUT', 'Every change needs an operation ID.');
-  if (!context || !DATE_ONLY.test(context.date))
+  if (!context || !isCalendarDate(context.date))
     throw new ApplicationError('INVALID_INPUT', 'The change needs today’s date as YYYY-MM-DD.');
   const type = command?.type;
   const handler =
@@ -707,10 +716,15 @@ export function executeCommand<C extends ApplicationCommand>(
       'Your book changed since this change was prepared. Review the current version and try again.',
     );
 
-  const previous = snapshot.state.experience ? snapshot.state : food.ensureState(snapshot.state);
+  // Handler and normalization share one translation, so every failure reaches callers coded.
   let applied: Applied<C['type']>;
+  let next: AppState;
   try {
+    const previous = snapshot.state.experience ? snapshot.state : food.ensureState(snapshot.state);
     applied = handler(previous, command as unknown as CommandOf<C['type']>, context.date);
+    next = food.ensureState(applied.state);
+    next = preserveGroceryChanges(previous, next);
+    next = food.ensureToday(next, context.date, next.experience!.preferredSlot);
   } catch (error) {
     if (error instanceof ApplicationError) throw error;
     throw new ApplicationError(
@@ -718,9 +732,6 @@ export function executeCommand<C extends ApplicationCommand>(
       error instanceof Error ? error.message : 'This change could not be completed.',
     );
   }
-  let next = food.ensureState(applied.state);
-  next = preserveGroceryChanges(previous, next);
-  next = food.ensureToday(next, context.date, next.experience!.preferredSlot);
 
   const revision = snapshot.revision + 1;
   const entries = [

@@ -4,6 +4,22 @@ October 31, 2026. Owner request: use the marketing harness, the ICP harness and 
 
 Evidence tiers follow [the evals register](../../evals/README.md): `measured`, `observed`, `operator`, `reference`, `inferred`, `simulated`. Repeating a claim across derived documents does not make it independent.
 
+## Sources
+
+Status labels: **documented** means the source states it; **untested** means nobody has checked it against behavior or a second source; **unknown** means the source does not establish it.
+
+| Source | URL or identifier | Observed | Tier | Status |
+|---|---|---|---|---|
+| Ideabrowser keyword "recommended daily protein intake" | Ideabrowser trend record 60454, read through the Ideabrowser connector (no public URL returned) | 2026-10-31 (record dated 2026-08-08) | `reference` | Volume and growth documented by Ideabrowser; its measurement method untested |
+| Ideabrowser keyword "macro tracker for weight loss" | Ideabrowser trend record 71410, same route | 2026-10-31 (record dated 2026-08-13) | `reference` | As above |
+| Ideabrowser insight "GLP-1 Friendly Meal Planning & CPG" | https://ideabrowser.com/market-insights/glp1-friendly-meal-planning-cp-2025-09-22T19-35-03 | 2026-10-31 (created 2025-09-22) | `reference` | Topic documented; audience evidence unknown (none attached) |
+| Ideabrowser idea searches "meal planning" (11 results) and "recipe" (20 results) | Ideabrowser idea database, read through the connector | 2026-10-31 | `simulated` | Ideas and scores are generated; every claim untested |
+| Ideabrowser idea "Adaptive meal app that syncs with GLP-1 cycles" | https://ideabrowser.com/hub/ideas/meal-planning-app-built-for-glp-1-medication-users | 2026-10-31 (analysis dated 2026-02-20) | `simulated` | "No direct competitors" untested, and contradicted by the benchmark below |
+| Owner's Ideabrowser founder profile | Private: the owner's Ideabrowser account; not reproduced here | 2026-10-31 | `operator` | Documented by the owner; not independently checked |
+| Market report, 15-product benchmark, competitor audits | [market report](../market/commercial-strategy.md), [benchmark](../market/benchmark.csv), [audits](../competitors/production-patterns.md) | 2026-10-27 | `reference` | As labelled inside each file |
+| Agent-integration landscape | [competitive landscape](../agent-integrations/competitive-landscape.md) | 2026-10-27 | `reference` | As labelled inside the file |
+| Funnel-map method; attention graduation framework | The owner's private method library; methods only, not evidence about Mealbook | 2026-10-31 | method | Not evidence |
+
 ## The question
 
 Which direction should Mealbook commit to now, and which infrastructure does that direction require first? In scope: the product's distinctive job, who it is for first, the build order, and the infrastructure seams. Out of scope: price, a public position statement, channels and any contact with people. The marketing method forbids settling an offer, a position or a price from desk research alone, and this pass is desk research.
@@ -38,6 +54,8 @@ Sources: [STRATEGY.md](../../../STRATEGY.md), [market report](../market/commerci
 - **Simulation rule.** A simulated persona's reaction is never filed as audience evidence. The same rule already governs Mealbook's evals.
 
 ## What the evidence settles
+
+Each item is a direction chosen from the documented sources above. None is an observed result, so all are untested until EV-08, EV-10 or the Stage 4 pilot measures them.
 
 1. **The positioning stays.** "Your recipes. A prep week that fits your goals and your time. One shopping list." Nothing in this pass contradicts it, and nothing new supports changing it.
 2. **What is distinctive is the record, not the features.** Capture, assistant access, macro targets and generated menus are commodities. What is not documented elsewhere is a week planned from the person's own book that then learns from what actually happened: the time a cook really took (built), the portions a batch really made (#46), and the ready food that carries into next week (built). This is a hypothesis about difference, not a claim of uniqueness.
