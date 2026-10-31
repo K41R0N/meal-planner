@@ -14,9 +14,9 @@ Updated October 28, 2026. An eval answers one question about whether Mealbook is
 
 | ID | Question | Kind | How to run | Threshold | Roadmap stage | Status |
 |---|---|---|---|---|---|---|
-| EV-01 | Do domain, storage and import invariants still hold? | Check | `pnpm test` (CI) | 100% pass | Every PR | Active: 87/87 on 2026-10-28 |
+| EV-01 | Do domain, storage and import invariants still hold? | Check | `pnpm test` (CI) | 100% pass | Every PR | Active: 95/95 on 2026-10-31 |
 | EV-02 | How complete and attributable is the recipe library's data? | Measure | `pnpm eval:coverage` | Descriptive until the Stage 1 plan sets targets | S1 | Baseline: [2026-10-28 at `39b1916`](results/2026-10-28-ev-02-library-coverage-r2.json) (corrects [the first file](results/2026-10-28-ev-02-library-coverage.json), which recorded a commit without the script; counts identical) |
-| EV-03 | Does the core loop, including backup export and restore, work in a real browser? | Check | Browser smoke test in CI | Pass | S0 | Planned |
+| EV-03 | Does the core loop, including backup export and restore, work in a real browser? | Check | `pnpm test:e2e` after `pnpm build` (CI) | Pass | S0 | Active: [8/8 on 2026-10-31 at `aef8360`](results/2026-10-31-ev-03-core-loop.md) |
 | EV-04 | Does import reproduce the source faithfully? | Eval | Held-out source set + scorer | Set in the Stage 1 plan | S1 | Planned |
 | EV-05 | Does the planner behave correctly across the roadmap's held-out week scenarios? | Eval | Scenario suite under `tests/` | All scenarios pass | S2 | Partial: existing batch-planning tests |
 | EV-06 | Do the app and agent tools change the same records safely? | Eval | Agent plan acceptance examples AE1–AE5 | All pass | S3A | Planned |
