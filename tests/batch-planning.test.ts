@@ -304,7 +304,8 @@ const readyReuseFixture = () => {
 
 test('ready reuse uses immutable batch yield arithmetic, respects saved allocations, and protected choices survive reroll', (t) => {
   // Saved uses reserve ready food only from today on, so pin the clock to the fixture's dates.
-  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-10-27T12:00:00.000Z') });
+  // Local noon on October 27, so the planner's local "today" is the 27th in every time zone.
+  t.mock.timers.enable({ apis: ['Date'], now: new Date(2026, 9, 27, 12).getTime() });
   const { app, request, dinner, other } = readyReuseFixture();
   const proposed = batchPlanning.proposeWeek(app, request, 'ready-week');
   const ready = proposed.choices[0];

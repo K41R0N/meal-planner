@@ -245,3 +245,34 @@ test('version-one profiles without timing provenance still restore unchanged', (
   broken.experience.recipeProfiles.soup.timingObservedAt = 'last Tuesday';
   assert.throws(() => validateState(broken), /timingObservedAt/);
 });
+
+test('a profile write cannot store a timing observation that restore would reject', () => {
+  const state = seeded();
+  const profile = {
+    ...food.ensureState(state).experience!.recipeProfiles[RECIPE_ID],
+    yieldUnit: 'recipe serving',
+    sourceUnitsPerPortion: 1,
+    portionSizeConfirmed: false,
+    activeMinutes: null,
+    elapsedMinutes: 40,
+    reheatMinutes: null,
+    equipment: [],
+    equipmentConfirmed: false,
+    reheatNotes: '',
+    notes: '',
+    timingSourceServings: 4,
+  } as RecipeProfile;
+  assert.throws(
+    () => food.updateProfile(state, RECIPE_ID, { ...profile, timingObservedAt: 'last Tuesday' }),
+    /ISO 8601/,
+  );
+  const saved = food.updateProfile(state, RECIPE_ID, {
+    ...profile,
+    timingObservedAt: '2026-10-26T18:30:00.000Z',
+  });
+  assert.equal(
+    validateState(JSON.parse(JSON.stringify(saved))).experience!.recipeProfiles[RECIPE_ID]
+      .timingObservedAt,
+    '2026-10-26T18:30:00.000Z',
+  );
+});

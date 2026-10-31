@@ -623,6 +623,9 @@ const stringRecord = (value: unknown, path: string): Record<string, string> => {
   return result;
 };
 
+/** The restore validator's timestamp rule, shared so engine writes cannot store what restore rejects. */
+export const validateTimestamp = (value: unknown, path: string): string => timestamp(value, path);
+
 export interface ExperienceValidationContext {
   recipes: readonly Recipe[];
   plans: readonly WeekPlan[];

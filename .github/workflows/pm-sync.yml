@@ -13,7 +13,8 @@ on:
       - .github/pm/board.json
       - .github/workflows/pm-sync.yml
   issues:
-    types: [opened, edited]
+    # `closed` lets the retirement check run when a retired milestone's last issue closes.
+    types: [opened, edited, closed]
   workflow_dispatch:
 
 permissions:
@@ -26,6 +27,9 @@ concurrency:
 
 jobs:
   sync:
+    # Issue events always run on the default branch; a manual run on any other ref is ignored,
+    # so an unmerged board.json can never write labels or milestones.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -83,7 +87,7 @@ jobs:
               ? [context.payload.issue]
               : await github.paginate(github.rest.issues.listForRepo, { owner, repo, state: 'open', milestone: 'none', per_page: 100 });
             for (const issue of issues) {
-              if (issue.pull_request || issue.milestone) continue;
+              if (issue.pull_request || issue.milestone || issue.state !== 'open') continue;
               const key = /^\[(S\d+A?)\]/.exec(issue.title)?.[1];
               const number = key && numberByKey.get(key);
               if (!number) continue;

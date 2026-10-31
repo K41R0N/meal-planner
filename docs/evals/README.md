@@ -5,7 +5,7 @@ Updated October 28, 2026. An eval answers one question about whether Mealbook is
 ## Rules
 
 1. **Predeclare.** Thresholds are written into the eval's plan or epic before the first scored run. Changing one after seeing results needs a dated decision explaining why.
-2. **Report denominators.** Every result states the sample size, abstentions or exclusions, the commit SHA, the command or protocol and the date. A percentage without its denominator is not a result.
+2. **Report denominators.** Every result states the sample size, abstentions or exclusions, the commit SHA, the command or protocol and the date. A percentage without its denominator is not a result. A CI check's record is its Actions run, linked from the register with its commit.
 3. **Append, never rewrite.** Results go to `docs/evals/results/YYYY-MM-DD-<eval-id>.md` (or `.json` from a script). Corrections are new files that reference the old one.
 4. **Regressions are bugs.** A result below threshold on a shipped capability opens a `type:bug` + `regression` issue.
 5. **Simulations are not evals.** LLM or persona judgments may pre-screen drafts; they never count as evidence for a gate.
@@ -14,8 +14,8 @@ Updated October 28, 2026. An eval answers one question about whether Mealbook is
 
 | ID | Question | Kind | How to run | Threshold | Roadmap stage | Status |
 |---|---|---|---|---|---|---|
-| EV-01 | Do domain, storage and import invariants still hold? | Check | `pnpm test` (CI) | 100% pass | Every PR | Active: 112/112 on 2026-10-31 |
-| EV-02 | How complete and attributable is the recipe library's data? | Measure | `pnpm eval:coverage` | Descriptive until the Stage 1 plan sets targets | S1 | Baseline: [2026-10-28 at `39b1916`](results/2026-10-28-ev-02-library-coverage-r2.json) (corrects [the first file](results/2026-10-28-ev-02-library-coverage.json), which recorded a commit without the script; counts identical) |
+| EV-01 | Do domain, storage and import invariants still hold? | Check | `pnpm test` (CI) | 100% pass | Every PR | Active: 112/112 at `2756ef8` on 2026-10-31 ([CI run](https://github.com/K41R0N/meal-planner/actions/runs/41253440454)); CI reruns it on every push |
+| EV-02 | How complete and attributable is the recipe library's data? | Measure | `pnpm eval:coverage` | Descriptive until the Stage 1 plan sets targets | S1 | Baseline: [2026-10-28 at `39b1916`](results/2026-10-28-ev-02-library-coverage-r2.json) (corrects [the first file](results/2026-10-28-ev-02-library-coverage.json), which recorded a commit without the script; counts identical; [lineage note](results/2026-10-31-ev-02-lineage.md)) |
 | EV-03 | Does the core loop, including backup export and restore, work in a real browser? | Check | `pnpm test:e2e` after `pnpm build` (CI) | Pass | S0 | Active: [8/8 on 2026-10-31 at `aef8360`](results/2026-10-31-ev-03-core-loop.md) |
 | EV-04 | Does import reproduce the source faithfully? | Eval | Held-out source set + scorer | Set in the Stage 1 plan | S1 | Planned |
 | EV-05 | Does the planner behave correctly across the roadmap's held-out week scenarios? | Eval | Scenario suite under `tests/` | All scenarios pass | S2 | Partial: existing batch-planning tests |

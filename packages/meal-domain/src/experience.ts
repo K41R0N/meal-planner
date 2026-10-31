@@ -1,6 +1,6 @@
 import { perServingNutrition } from './nutrition';
 import { validateRecipes } from './validation';
-import { validateExperienceState } from './experience-validation';
+import { validateExperienceState, validateTimestamp } from './experience-validation';
 import type { ExperienceEngine } from './experience-api';
 import type {
   BatchChoice,
@@ -935,7 +935,7 @@ export const experienceEngine: ExperienceEngine = {
           : null
         : profile.timingObservedAt === null
           ? null
-          : nonEmptyText(profile.timingObservedAt, 'Timing observation time');
+          : validateTimestamp(profile.timingObservedAt, 'Timing observation time');
     return withExperience(working, {
       ...working.experience!,
       recipeProfiles: { ...working.experience!.recipeProfiles, [recipeId]: checked },
