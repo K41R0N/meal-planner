@@ -32,6 +32,10 @@ jobs:
         run: pnpm test
       - name: Production build
         run: pnpm build
+      - name: Install Chromium for browser tests
+        run: pnpm exec playwright install --with-deps chromium
+      - name: EV-03 core-loop browser test
+        run: pnpm test:e2e
       - name: EV-02 library coverage (descriptive)
         run: |
           {
