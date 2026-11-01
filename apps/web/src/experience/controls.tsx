@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { Recipe } from '@domain/types';
+import type { RecipeProfile } from '@domain/experience-types';
 import { displayNumber } from '../components/shared';
 
 export const DialogFeedbackContext = createContext({ text: '', isError: false });
@@ -91,6 +92,15 @@ export function recipeTime(recipe: Recipe): string | null {
   if (recipe.prepMinutes !== null) bits.push(`Prep ${displayNumber(recipe.prepMinutes, 0)} min`);
   if (recipe.cookMinutes !== null) bits.push(`Cook ${displayNumber(recipe.cookMinutes, 0)} min`);
   return bits.join(' · ');
+}
+
+/** The time the person can plan with: their own confirmed time first, then the source's labels. */
+export function cookTime(recipe: Recipe, profile: RecipeProfile | undefined): string | null {
+  if (!profile || profile.elapsedMinutes === null) return recipeTime(recipe);
+  const amount = profile.timingSourceServings ?? recipe.baseServings;
+  const basis = amount === null ? '' : ` for ${displayNumber(amount)} servings`;
+  const origin = profile.timingObservedAt ? ' · timed when you cooked it' : ' · confirmed';
+  return `${displayNumber(profile.elapsedMinutes, 0)} min${basis}${origin}`;
 }
 
 export function macroFacts(recipe: Recipe): Array<{ label: string; value: string }> {

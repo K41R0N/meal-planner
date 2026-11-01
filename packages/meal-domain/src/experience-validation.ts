@@ -281,6 +281,23 @@ const recipeProfile = (value: unknown, path: string): RecipeProfile => {
       max: MAX_NOTES,
     }),
     notes: text(value.notes, `${path}.notes`, { allowEmpty: true, max: MAX_NOTES }),
+    // Timing provenance arrived after version-one backups; absent fields stay absent.
+    ...(value.timingSourceServings === undefined
+      ? {}
+      : {
+          timingSourceServings: nullablePositive(
+            value.timingSourceServings,
+            `${path}.timingSourceServings`,
+          ),
+        }),
+    ...(value.timingObservedAt === undefined
+      ? {}
+      : {
+          timingObservedAt:
+            value.timingObservedAt === null
+              ? null
+              : timestamp(value.timingObservedAt, `${path}.timingObservedAt`),
+        }),
   };
 };
 
@@ -605,6 +622,9 @@ const stringRecord = (value: unknown, path: string): Record<string, string> => {
     result[text(key, `${path} key`)] = text(item, `${path}.${key}`, { allowEmpty: true });
   return result;
 };
+
+/** The restore validator's timestamp rule, shared so engine writes cannot store what restore rejects. */
+export const validateTimestamp = (value: unknown, path: string): string => timestamp(value, path);
 
 export interface ExperienceValidationContext {
   recipes: readonly Recipe[];

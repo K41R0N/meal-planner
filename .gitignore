@@ -16,3 +16,5 @@ android/
 .venv/
 .claude/settings.local.json
 apps/web/public/fonts/
+test-results/
+playwright-report/

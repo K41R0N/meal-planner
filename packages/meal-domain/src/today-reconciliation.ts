@@ -1,5 +1,5 @@
-import type { AppState } from '@domain/types';
-import { experienceEngine as food } from '@domain/experience';
+import type { AppState } from './types';
+import { experienceEngine as food } from './experience';
 
 export function reconcileToday(state: AppState, date: string, mode: 'confirm' | 'swap'): AppState {
   const experience = state.experience!;

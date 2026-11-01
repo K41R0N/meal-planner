@@ -1,0 +1,55 @@
+name: Feature or change
+description: A user- or owner-observable change, sized to ship with evidence.
+labels: ["type:feature", "status:needs-plan"]
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: What a user or the owner can observe when this is done.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: The strategy line, decision, evidence or eval this serves. Link it.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Checkable statements. Include the unhappy paths (unknown data, offline, Undo, stale state).
+      value: |
+        - [ ] 
+    validations:
+      required: true
+  - type: textarea
+    id: evals
+    attributes:
+      label: Evals and checks
+      description: Eval IDs from docs/evals/README.md this moves or must keep green, and any new test.
+      value: |
+        - EV-01 stays green
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Out of scope
+  - type: input
+    id: plan
+    attributes:
+      label: Plan
+      description: Link to docs/plans/... or "not needed" with a reason (single PR, no contract change).
+  - type: dropdown
+    id: authority
+    attributes:
+      label: Authority needed
+      options:
+        - None beyond normal development
+        - Owner decision before starting
+        - Owner-only step (deploy, outreach, provider, billing)
+    validations:
+      required: true

@@ -69,6 +69,7 @@ import {
   DialogFeedbackContext,
   LabelledButton,
   RecipeVisual,
+  cookTime,
   macroFacts,
   recipeTime,
 } from './controls';
@@ -439,11 +440,10 @@ function TodayPage({ model, dispatch }: Pick<MealbookUIProps, 'model' | 'dispatc
                   Yield is missing. You can read the source or confirm it when you start cooking.
                 </p>
               ) : null}
-              {recipeTime(recipe) ? (
-                <p className="mb-today-time">{recipeTime(recipe)}</p>
-              ) : (
-                <p className="mb-today-time">Cooking time not confirmed</p>
-              )}
+              <p className="mb-today-time">
+                {cookTime(recipe, model.state.experience?.recipeProfiles[recipe.id]) ??
+                  'Cooking time not confirmed'}
+              </p>
               {todayFacts.length > 0 && (
                 <div className="mb-facts mb-facts--large">
                   {todayFacts.map((fact) => (
@@ -750,6 +750,13 @@ function TimerAddDialog({
   );
 }
 
+/** Wall-clock minutes since the cook started, rounded to 5; empty when implausible (e.g. a session left open overnight). */
+function measuredMinutes(startedAt: string): string {
+  const minutes = (Date.now() - Date.parse(startedAt)) / 60_000;
+  if (!Number.isFinite(minutes) || minutes < 1 || minutes > 360) return '';
+  return String(Math.max(5, Math.round(minutes / 5) * 5));
+}
+
 function FinishCookDialog({
   session,
   profile,
@@ -769,6 +776,11 @@ function FinishCookDialog({
   const [preparedSourceServings, setPreparedSourceServings] = useState(
     String(session.sourceServings),
   );
+  const [minutesValue, setMinutesValue] = useState(() => measuredMinutes(session.startedAt));
+  // Remembering is the default once a time is entered; unticking is the explicit choice.
+  const [rememberTiming, setRememberTiming] = useState(true);
+  const minutes = Number(minutesValue);
+  const minutesValid = minutesValue.trim() !== '' && Number.isFinite(minutes) && minutes > 0;
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (
@@ -781,6 +793,8 @@ function FinishCookDialog({
         storageNotes: storageNotes.trim(),
         reheatNotes: reheatNotes.trim(),
         preparedSourceServings: numberFrom(preparedSourceServings, session.sourceServings),
+        elapsedMinutes: minutesValid ? minutes : null,
+        rememberTiming: rememberTiming && minutesValid,
       })
     )
       onClose();
@@ -818,6 +832,36 @@ function FinishCookDialog({
             />
           </label>
         </div>
+        <label className="mb-field">
+          <span>
+            How long did it take? <small>Minutes from start to ready food.</small>
+          </span>
+          <input
+            type="number"
+            min="1"
+            max="1440"
+            step="1"
+            inputMode="numeric"
+            value={minutesValue}
+            onChange={(event) => setMinutesValue(event.target.value)}
+            placeholder="Leave empty if you're not sure"
+          />
+        </label>
+        <label className="mb-check-row">
+          <input
+            type="checkbox"
+            checked={rememberTiming && minutesValid}
+            disabled={!minutesValid}
+            onChange={(event) => setRememberTiming(event.target.checked)}
+          />
+          <span>
+            <b>Remember this time for planning</b>
+            <small>
+              Future weeks can fit {displayNumber(session.sourceServings)} recipe servings into a
+              cooking window. A different amount still needs its own time.
+            </small>
+          </span>
+        </label>
         <label className="mb-field">
           <span>Storage now</span>
           <select
@@ -926,7 +970,9 @@ function CookSurface({ model, dispatch }: Pick<MealbookUIProps, 'model' | 'dispa
           </button>
           <h1 id="cook-heading">{recipe.name}</h1>
           <p>
-            {recipeTime(recipe) || 'Source time not confirmed'} ·{' '}
+            {cookTime(recipe, model.state.experience?.recipeProfiles[recipe.id]) ||
+              'Source time not confirmed'}{' '}
+            ·{' '}
             {session.sourceServings
               ? `${displayNumber(session.sourceServings)} source servings`
               : 'Source amount to review'}
@@ -1564,7 +1610,10 @@ function WeekPage({ model, dispatch }: Pick<MealbookUIProps, 'model' | 'dispatch
               ? 'Already prepared · no recook'
               : 'Batch cooked'
             : choice.timingFit === 'confirmed'
-              ? 'Fits a confirmed window'
+              ? `Fits a confirmed window · ${displayNumber(
+                  profileFor(choice.recipeId, model.state.experience?.recipeProfiles)
+                    .elapsedMinutes ?? 0,
+                )} min`
               : choice.timingFit === 'over_budget'
                 ? 'Over the selected window'
                 : 'Timing needs confirmation';
@@ -2394,7 +2443,11 @@ function RecipeDetail({ model, dispatch }: Pick<MealbookUIProps, 'model' | 'disp
                     ) : (
                       <span>Yield unknown</span>
                     )}
-                    {recipeTime(recipe) ? <span>{recipeTime(recipe)}</span> : null}
+                    {cookTime(recipe, model.state.experience?.recipeProfiles[recipe.id]) ? (
+                      <span>
+                        {cookTime(recipe, model.state.experience?.recipeProfiles[recipe.id])}
+                      </span>
+                    ) : null}
                   </div>
                   <div className="mb-chip-row">
                     {recipe.tags.map((tag) => (

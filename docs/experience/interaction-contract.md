@@ -20,7 +20,7 @@ Saving offers the next job in context: Cook today, Add to my week, or Keep in my
 
 Start with cooking windows and desired meal/portion coverage; reveal advanced roles, nutrition constraints and date placement only when requested. A proposed week consists of a small set of batch cards. Each shows the recipe, intended yield, assigned portions, confirmed timing or timing gap, and shared-ingredient evidence. The schedule is a secondary view.
 
-Selection honors user preferences/favorites and source data. Explain every recommendation: fits a confirmed window, uses an ingredient already selected, repeats a favorite, or needs timing confirmation. Do not imply diet quality, price savings or safe storage from a tag. Unknown timing cannot qualify as zero minutes under a strict time budget.
+Selection honors user preferences/favorites and source data. Explain every recommendation: fits a confirmed window, uses an ingredient already selected, repeats a favorite, or needs timing confirmation. Do not imply diet quality, price savings or safe storage from a tag. Unknown timing cannot qualify as zero minutes under a strict time budget. A window fit needs confirmed elapsed time for the exact amount planned, either entered by the person or kept from a finished cook of that amount; time is never scaled to a different amount, and hands-on time is not inferred from elapsed time.
 
 A swap has two visible scopes: this meal only or this uncooked batch. Show the shopping and portion change before confirmation. Keep locked choices. Reroll only uncooked/unlocked choices. If a feasible pool is too small, explain which constraint reduces it and offer a specific relaxation; do not ignore the constraint silently.
 

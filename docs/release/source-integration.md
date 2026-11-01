@@ -17,7 +17,7 @@ The existing public Netlify prototype and the unreleased Mealbook replacement/co
 
 ## Integration method
 
-Fetch remote main; verify ancestry; integrate normally if it changed; run affected checks; fast-forward local main to the complete approved source and perform a normal non-force push. Include **`[skip ci]`** in the final commit message, Netlify's documented Git-triggered deployment-skip mechanism. Do not invoke a deploy/publish tool, change Netlify settings or alter repository integrations.
+Fetch remote main; verify ancestry; integrate normally if it changed; run affected checks; fast-forward local main to the complete approved source and perform a normal non-force push. Include **`[skip netlify]`** in the final commit message, Netlify's documented Git-triggered deployment-skip mechanism. Pushes before October 28, 2026 used `[skip ci]`; [D014](../decisions/README.md) switched to `[skip netlify]` so GitHub Actions checks still run. Do not invoke a deploy/publish tool, change Netlify settings or alter repository integrations.
 
 Read back the remote SHA after the push and compare with local main. Read the current Netlify published deploy ID where available and report its observed state accurately. A skip marker addresses the documented Git-triggered flow; it is not a claim that all unknown third-party triggers have been independently audited.
 
