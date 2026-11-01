@@ -13,8 +13,9 @@ on:
       - .github/pm/board.json
       - .github/workflows/pm-sync.yml
   issues:
-    # `closed` lets the retirement check run when a retired milestone's last issue closes.
-    types: [opened, edited, closed]
+    # `closed` lets the retirement check run when a retired milestone's last issue closes;
+    # `reopened` lets a reopened stage issue get its milestone.
+    types: [opened, edited, closed, reopened]
   workflow_dispatch:
 
 permissions:
@@ -83,9 +84,9 @@ jobs:
 
             const current = await github.paginate(github.rest.issues.listMilestones, { owner, repo, state: 'open', per_page: 100 });
             const numberByKey = new Map(current.map((milestone) => [milestone.title.split(' ')[0], milestone.number]));
-            const issues = context.eventName === 'issues'
-              ? [context.payload.issue]
-              : await github.paginate(github.rest.issues.listForRepo, { owner, repo, state: 'open', milestone: 'none', per_page: 100 });
+            // Every run sweeps all open, unmilestoned issues: a newer event can replace a pending
+            // run in this concurrency group, so a run must not handle only its own event's issue.
+            const issues = await github.paginate(github.rest.issues.listForRepo, { owner, repo, state: 'open', milestone: 'none', per_page: 100 });
             for (const issue of issues) {
               if (issue.pull_request || issue.milestone || issue.state !== 'open') continue;
               const key = /^\[(S\d+A?)\]/.exec(issue.title)?.[1];

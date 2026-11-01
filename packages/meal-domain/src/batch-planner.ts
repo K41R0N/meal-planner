@@ -18,12 +18,32 @@ const finitePositive = (value: unknown): value is number =>
 const finiteNonNegative = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value) && value >= 0;
 const now = (): string => new Date().toISOString();
-/** The person's local calendar date, matching the date keys the UI writes; not the UTC date. */
+/** The date a command supplied, set only while `withPlanningDate` runs. */
+let planningDate: string | null = null;
+/**
+ * The person's calendar date for ready-food reservations: the caller's date while a
+ * command runs, otherwise this device's local date (never the UTC date).
+ */
 const today = (): string => {
+  if (planningDate) return planningDate;
   const date = new Date();
   const pad = (value: number): string => String(value).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 };
+/**
+ * Runs synchronous planning with `date` (YYYY-MM-DD, the caller's local date) as
+ * "today", so a command and the planner never disagree about which reservations are
+ * still ahead. Planning is synchronous, so the date cannot leak into another call.
+ */
+export function withPlanningDate<T>(date: string, run: () => T): T {
+  const previous = planningDate;
+  planningDate = date;
+  try {
+    return run();
+  } finally {
+    planningDate = previous;
+  }
+}
 const epsilon = 1e-9;
 
 const generatedId = (prefix: string, used: Set<string>): string => {

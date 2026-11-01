@@ -1,7 +1,7 @@
 import { emptyNutrition, type AppState, type Recipe } from './types';
 import type { BatchWeek, SwapPreview, SwapRequest } from './experience-types';
 import { experienceEngine as food } from './experience';
-import { batchPlanning as planning } from './batch-planner';
+import { batchPlanning as planning, withPlanningDate } from './batch-planner';
 import { purchasePlanning as purchases } from './purchase-list';
 import { createConsumption } from './nutrition';
 import { validateRecipes, validateState } from './validation';
@@ -126,10 +126,10 @@ function preserveGroceryChanges(previous: AppState, next: AppState): AppState {
 }
 
 /** Swap proposal and its grocery differences, without changing anything. */
-export function previewSwap(state: AppState, request: SwapRequest): SwapPreview {
+export function previewSwap(state: AppState, request: SwapRequest, date: string): SwapPreview {
   const week = state.experience?.weeks.find((item) => item.id === request.weekId);
   if (!week) throw new ApplicationError('NOT_FOUND', 'That week could not be found.');
-  const proposedWeek = planning.swap(state, week, request);
+  const proposedWeek = withPlanningDate(date, () => planning.swap(state, week, request));
   const before = purchases.buildList(state, week);
   const after = purchases.buildList(putWeek(state, proposedWeek), proposedWeek);
   const oldItems = new Map(before.items.map((item) => [item.key, item]));
@@ -717,14 +717,20 @@ export function executeCommand<C extends ApplicationCommand>(
     );
 
   // Handler and normalization share one translation, so every failure reaches callers coded.
+  // The planner uses the command's date, not the wall clock, for ready-food reservations.
   let applied: Applied<C['type']>;
   let next: AppState;
   try {
-    const previous = snapshot.state.experience ? snapshot.state : food.ensureState(snapshot.state);
-    applied = handler(previous, command as unknown as CommandOf<C['type']>, context.date);
-    next = food.ensureState(applied.state);
-    next = preserveGroceryChanges(previous, next);
-    next = food.ensureToday(next, context.date, next.experience!.preferredSlot);
+    [applied, next] = withPlanningDate(context.date, () => {
+      const previous = snapshot.state.experience
+        ? snapshot.state
+        : food.ensureState(snapshot.state);
+      const result = handler(previous, command as unknown as CommandOf<C['type']>, context.date);
+      let normalized = food.ensureState(result.state);
+      normalized = preserveGroceryChanges(previous, normalized);
+      normalized = food.ensureToday(normalized, context.date, normalized.experience!.preferredSlot);
+      return [result, normalized] as const;
+    });
   } catch (error) {
     if (error instanceof ApplicationError) throw error;
     throw new ApplicationError(

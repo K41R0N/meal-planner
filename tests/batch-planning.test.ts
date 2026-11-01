@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { batchPlanning } from '../packages/meal-domain/src/batch-planner.ts';
+import { batchPlanning, withPlanningDate } from '../packages/meal-domain/src/batch-planner.ts';
+import {
+  createSnapshot,
+  executeCommand,
+} from '../packages/meal-domain/src/application-commands.ts';
 import {
   defaultFilters,
   emptyNutrition,
@@ -1237,5 +1241,52 @@ test('an explicit meal swap may leave saved filters and roles, and reuses suffic
   assert.match(
     replacement.explanations.join(' '),
     /explicit choice; saved recipe roles remain unchanged/i,
+  );
+});
+
+test('ready-food reservations follow the date a command supplies, not the wall clock', (t) => {
+  // The wall clock says October 27 everywhere; the caller says it is already the 28th.
+  t.mock.timers.enable({ apis: ['Date'], now: new Date(2026, 9, 27, 12).getTime() });
+  const { app, request } = readyReuseFixture();
+  const onClock = batchPlanning.proposeWeek(app, request, 'clock-week').choices[0];
+  assert.equal(onClock.portions, 5, 'the October 27 saved use still holds one portion');
+
+  const onCaller = withPlanningDate('2026-10-28', () =>
+    batchPlanning.proposeWeek(app, request, 'caller-week'),
+  ).choices[0];
+  assert.equal(onCaller.portions, 6, 'on the 28th, the October 27 reservation is in the past');
+
+  // Full validation needs the batch's finished cooking session; the planner fixture omits it.
+  const valid = structuredClone(app);
+  const batch = valid.experience!.batches[0];
+  valid.experience!.sessions = [
+    {
+      id: batch.sessionId,
+      recipeId: batch.recipeId,
+      recipeSnapshot: batch.recipeSnapshot,
+      sourceServings: batch.preparedSourceServings,
+      stepIndex: 0,
+      checkedIngredientIds: [],
+      timers: [],
+      startedAt: '2026-10-24T23:00:00.000Z',
+      updatedAt: batch.madeAt,
+      finishedAt: batch.madeAt,
+      weekId: null,
+      choiceId: null,
+    },
+  ];
+  const viaCommand = executeCommand(createSnapshot(valid), {
+    operationId: 'op-propose',
+    command: { type: 'week.propose', weekId: 'command-week', request },
+    context: { date: '2026-10-28' },
+  });
+  const proposed = viaCommand.snapshot.state.experience!.weeks.find(
+    (week) => week.id === 'command-week',
+  )!;
+  assert.equal(proposed.choices[0].portions, 6);
+  assert.equal(
+    batchPlanning.proposeWeek(app, request, 'after').choices[0].portions,
+    5,
+    'the caller date does not leak past the command',
   );
 });

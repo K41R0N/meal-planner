@@ -468,7 +468,7 @@ export function useMealbook() {
           });
           return true;
         case 'PREVIEW_SWAP': {
-          const preview: SwapPreview = previewSwap(value, action.request);
+          const preview: SwapPreview = previewSwap(value, action.request, date);
           swapRef.current = preview;
           setSwapPreview(preview);
           return true;
