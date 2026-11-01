@@ -276,3 +276,18 @@ test('a profile write cannot store a timing observation that restore would rejec
     '2026-10-26T18:30:00.000Z',
   );
 });
+
+test('learned time belongs to the amount actually prepared, not the amount planned', () => {
+  // Planned 4 recipe servings, actually cooked 6: the minutes describe 6.
+  const done = food.finishCook(startTimed(seeded()), 'timed-cook', {
+    ...finish,
+    actualYield: 6,
+    preparedSourceServings: 6,
+    elapsedMinutes: 70,
+    rememberTiming: true,
+  });
+  const profile = done.experience!.recipeProfiles[RECIPE_ID];
+  assert.equal(profile.elapsedMinutes, 70);
+  assert.equal(profile.timingSourceServings, 6);
+  assert.equal(done.experience!.batches[0].preparedSourceServings, 6);
+});

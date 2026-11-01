@@ -796,7 +796,7 @@ export const experienceEngine: ExperienceEngine = {
           [session.recipeId]: {
             ...(existing ?? newRecipeProfile(yieldUnit)),
             elapsedMinutes: learnedMinutes,
-            timingSourceServings: session.sourceServings,
+            timingSourceServings: preparedSourceServings,
             timingObservedAt: finishedAt,
           },
         },
