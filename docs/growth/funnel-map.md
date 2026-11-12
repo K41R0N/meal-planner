@@ -15,4 +15,6 @@ Steps: **Sees → Tries → Captures → First useful week → Second useful wee
 
 ## What cannot be observed yet
 
-Mealbook has no analytics, accounts or public release, so no step is measurable from product data. Until the Stage 4 pilot, the only sources are the owner's own use (EV-08, n = 1) and Stage 2's supervised sessions (EV-10). Events above are names to design, not events that exist.
+Mealbook has no analytics, accounts or public release, so no step is measurable from product data across people. Until the Stage 4 pilot, the only sources are the owner's own use (EV-08, n = 1) and Stage 2's supervised sessions (EV-10). Events above are names to design, not events that exist.
+
+Since November 12, the app counts the first and second useful week on the device (Settings → Your weeks: counts and dates only, nothing sent). That makes the "first useful week" and "second useful week" moves observable for the owner today, and gives the Stage 4 pilot a content-free measure to report with consent.

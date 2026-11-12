@@ -117,6 +117,12 @@ test('Today → cook → ready food → eat → Undo → week → shop, survivin
     `${before - 1} ${before - 1 === 1 ? 'item' : 'items'} remaining`,
   );
 
+  // Settings counts the week from the record: confirmed and shopped, not yet cooked.
+  await openSettings(page);
+  const weeks = page.locator('section[aria-labelledby="week-counts-heading"]');
+  await expect(weeks.getByText(/plan confirmed · 1 shopping item · 0 cooks/)).toBeVisible();
+  await expect(weeks.getByText('1 cook outside a planned week.')).toBeVisible();
+
   expect(problems).toEqual([]);
 });
 

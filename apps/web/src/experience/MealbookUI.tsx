@@ -76,6 +76,7 @@ import {
 import { EnhancedRecipeBook, RecipeEditForm, RecipeProfileForm } from './RecipeWorkspace';
 import { EnhancedHistory } from './HistoryWorkspace';
 import { WindowEntry as WindowEditor } from './WindowEntry';
+import { WeekCounts } from './WeekCounts';
 import { allMacros, macroLabels } from '../components/shared';
 
 const RecipeImport = lazy(() =>
@@ -2725,6 +2726,7 @@ function SettingsPage({
           History & goals
         </LabelledButton>
       </section>
+      <WeekCounts state={model.state} />
       <section>
         <h2>Backup this device</h2>
         <p>Download a complete local backup before clearing browser data or moving devices.</p>

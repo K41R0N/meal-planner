@@ -18,3 +18,5 @@ export {
 export { MealbookApplication, createInMemoryRepository } from './application-service';
 export { withPlanningDate } from './batch-planner';
 export type { MealbookRepository } from './application-service';
+export { countUsefulWeeks, weekCountsText } from './week-counts';
+export type { UsefulWeekCounts, WeekActivity } from './week-counts';
