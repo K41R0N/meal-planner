@@ -137,6 +137,11 @@ test('a downloaded backup restores the week, ready food and learned cooking time
   const finish = page.getByRole('dialog');
   await finish.getByLabel(/How long did it take/).fill('40');
   await expect(finish.getByRole('checkbox', { name: /Remember this time/ })).toBeChecked();
+  // A meal portion is never implied: the choice starts off and states its arithmetic.
+  const portion = finish.getByRole('checkbox', { name: /is one meal/ });
+  await expect(portion).not.toBeChecked();
+  await expect(finish.getByText(/recipe servings\)\. Leave this off for pieces/)).toBeVisible();
+  await portion.check();
   await finish.getByRole('button', { name: 'Confirm ready food' }).click();
   await expect(page.getByText(/^40 min for .* · timed when you cooked it$/)).toBeVisible();
   const made = await leftCount(page);
@@ -149,6 +154,14 @@ test('a downloaded backup restores the week, ready food and learned cooking time
   ]);
   const backup = testInfo.outputPath('backup.json');
   await download.saveAs(backup);
+  const saved = JSON.parse(fs.readFileSync(backup, 'utf8'));
+  const learned = Object.values(saved.experience.recipeProfiles) as Array<{
+    portionSizeConfirmed: boolean;
+    portionObservedAt?: string | null;
+  }>;
+  expect(learned.some((profile) => profile.portionSizeConfirmed && profile.portionObservedAt)).toBe(
+    true,
+  );
 
   const freshDevice = await browser.newContext({
     baseURL: testInfo.project.use.baseURL,

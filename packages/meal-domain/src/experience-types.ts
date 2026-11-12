@@ -29,6 +29,8 @@ export interface RecipeProfile {
   timingSourceServings?: number | null;
   /** When `elapsedMinutes` came from a finished cooking session; absent or null means it was entered by hand. */
   timingObservedAt?: string | null;
+  /** When the confirmed portion size (`yieldUnit`, `sourceUnitsPerPortion`) came from a finished cook; absent or null means it was entered by hand. */
+  portionObservedAt?: string | null;
 }
 export interface CookingTimer {
   id: string;
@@ -282,6 +284,7 @@ export type MealbookAction =
       preparedSourceServings?: number;
       elapsedMinutes?: number | null;
       rememberTiming?: boolean;
+      rememberPortion?: boolean;
     }
   | { type: 'EXIT_COOK' }
   | { type: 'EAT_OPEN'; batchId: string; units?: number; useId?: string }

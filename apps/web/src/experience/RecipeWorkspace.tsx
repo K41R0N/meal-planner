@@ -1266,7 +1266,19 @@ export function RecipeProfileForm({
           />
         </label>
         <label className="mb-field">
-          <span>Recipe servings in one meal portion</span>
+          <span>
+            Recipe servings in one meal portion{' '}
+            {profile.portionObservedAt &&
+              draft.portionSizeConfirmed &&
+              draft.yieldUnit.trim() === profile.yieldUnit &&
+              draft.sourceUnitsPerPortion === String(profile.sourceUnitsPerPortion) && (
+                <small>
+                  Measured when you cooked it on{' '}
+                  {new Date(profile.portionObservedAt).toLocaleDateString()}: one{' '}
+                  {profile.yieldUnit} is one meal.
+                </small>
+              )}
+          </span>
           <input
             type="text"
             inputMode="decimal"

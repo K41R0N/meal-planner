@@ -268,6 +268,7 @@ const handlers: { [T in CommandType]: Handler<T> } = {
       preparedSourceServings: command.preparedSourceServings,
       elapsedMinutes: command.elapsedMinutes,
       rememberTiming: command.rememberTiming,
+      rememberPortion: command.rememberPortion,
     });
     const batch = completed.experience!.batches.find(
       (item) => item.sessionId === command.sessionId,

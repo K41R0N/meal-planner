@@ -56,6 +56,8 @@ export interface ExperienceEngine {
       /** Confirmed start-to-ready minutes for this cook; stored on the recipe profile only when `rememberTiming` is true. */
       elapsedMinutes?: number | null;
       rememberTiming?: boolean;
+      /** The person confirmed that one unit of this cook (`yieldUnit`) is one meal. */
+      rememberPortion?: boolean;
     },
   ): AppState;
   availableUnits(state: AppState, batchId: string): number;

@@ -780,8 +780,14 @@ function FinishCookDialog({
   const [minutesValue, setMinutesValue] = useState(() => measuredMinutes(session.startedAt));
   // Remembering is the default once a time is entered; unticking is the explicit choice.
   const [rememberTiming, setRememberTiming] = useState(true);
+  // A portion is never implied: the person ticks it, and only for a unit that is a whole meal.
+  const [rememberPortion, setRememberPortion] = useState(false);
   const minutes = Number(minutesValue);
   const minutesValid = minutesValue.trim() !== '' && Number.isFinite(minutes) && minutes > 0;
+  const made = Number(yieldValue);
+  const preparedAmount = numberFrom(preparedSourceServings, session.sourceServings);
+  const madeValid = Number.isFinite(made) && made > 0;
+  const unitName = yieldUnit.trim() || 'recipe serving';
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (
@@ -796,6 +802,7 @@ function FinishCookDialog({
         preparedSourceServings: numberFrom(preparedSourceServings, session.sourceServings),
         elapsedMinutes: minutesValid ? minutes : null,
         rememberTiming: rememberTiming && minutesValid,
+        rememberPortion: rememberPortion && madeValid,
       })
     )
       onClose();
@@ -833,6 +840,23 @@ function FinishCookDialog({
             />
           </label>
         </div>
+        <label className="mb-check-row">
+          <input
+            type="checkbox"
+            checked={rememberPortion && madeValid}
+            disabled={!madeValid}
+            onChange={(event) => setRememberPortion(event.target.checked)}
+          />
+          <span>
+            <b>One {unitName} is one meal</b>
+            <small>
+              {madeValid
+                ? `Future weeks count one ${unitName} as one meal (one ${unitName} = ${displayNumber(preparedAmount / made, 2)} recipe servings). `
+                : ''}
+              Leave this off for pieces, slices or anything that is not a whole meal.
+            </small>
+          </span>
+        </label>
         <label className="mb-field">
           <span>
             How long did it take? <small>Minutes from start to ready food.</small>
@@ -858,8 +882,8 @@ function FinishCookDialog({
           <span>
             <b>Remember this time for planning</b>
             <small>
-              Future weeks can fit {displayNumber(session.sourceServings)} recipe servings into a
-              cooking window. A different amount still needs its own time.
+              Future weeks can fit {displayNumber(preparedAmount)} recipe servings into a cooking
+              window. A different amount still needs its own time.
             </small>
           </span>
         </label>

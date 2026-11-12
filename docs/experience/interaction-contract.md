@@ -38,7 +38,7 @@ Cooking starts in the chosen recipe's context, with scaled ingredients, a curren
 
 Ingredient amounts and method prose must remain consistent: ingredient scaling does not silently rewrite cooking times, temperatures, equipment capacity or hard-coded step amounts. Highlight original-quantity mentions for review until they can be bound safely to structured ingredients. Do not double oven time merely because portions doubled.
 
-Finishing cooking confirms actual yield. It creates ready portions, not food-log entries. A repeated completion tap is idempotent. Storage is chosen/confirmed by the user; no blanket seven-day refrigeration rule. Existing ready food cannot become a different recipe because a future plan was swapped.
+Finishing cooking confirms actual yield. It creates ready portions, not food-log entries. The person may also say that one of the units made is one meal ("One box is one meal", off by default, with the recipe-serving arithmetic shown first); only then does the recipe keep that unit as its confirmed meal portion, with the date it was measured, so later weeks plan useful portions in it. Pieces, slices and other partial units are never confirmed for the person; saved weeks keep the portion size they were planned with. A repeated completion tap is idempotent. Storage is chosen/confirmed by the user; no blanket seven-day refrigeration rule. Existing ready food cannot become a different recipe because a future plan was swapped.
 
 ## Eat, log and repeat
 

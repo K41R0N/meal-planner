@@ -298,6 +298,14 @@ const recipeProfile = (value: unknown, path: string): RecipeProfile => {
               ? null
               : timestamp(value.timingObservedAt, `${path}.timingObservedAt`),
         }),
+    ...(value.portionObservedAt === undefined
+      ? {}
+      : {
+          portionObservedAt:
+            value.portionObservedAt === null
+              ? null
+              : timestamp(value.portionObservedAt, `${path}.portionObservedAt`),
+        }),
   };
 };
 

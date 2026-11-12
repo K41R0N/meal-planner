@@ -303,6 +303,7 @@ export function useMealbook() {
             preparedSourceServings: action.preparedSourceServings,
             elapsedMinutes: action.elapsedMinutes,
             rememberTiming: action.rememberTiming,
+            rememberPortion: action.rememberPortion,
           });
           setCookSessionId(null);
           navigate('today');

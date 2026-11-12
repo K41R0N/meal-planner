@@ -45,6 +45,8 @@ export type ApplicationCommand =
       preparedSourceServings?: number;
       elapsedMinutes?: number | null;
       rememberTiming?: boolean;
+      /** "One {yieldUnit} is one meal": learn the portion size from this cook. Never implied. */
+      rememberPortion?: boolean;
     }
   | {
       type: 'food.consume';

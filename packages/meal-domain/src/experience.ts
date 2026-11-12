@@ -786,20 +786,28 @@ export const experienceEngine: ExperienceEngine = {
       session.recipeId,
       batch.id,
     );
-    if (learnedMinutes !== null) {
-      // A confirmed cook teaches the recipe how long this amount takes, so later weeks can fit it into a window.
-      const existing = experience.recipeProfiles[session.recipeId];
+    const learnsPortion = input.rememberPortion === true;
+    if (learnedMinutes !== null || learnsPortion) {
+      // A confirmed cook teaches the recipe what it actually took: how long this amount takes,
+      // so later weeks can fit it into a window, and, only when the person says so, that one of
+      // the units made is one meal, so later weeks plan useful portions in that unit.
+      const profile = {
+        ...(experience.recipeProfiles[session.recipeId] ?? newRecipeProfile(yieldUnit)),
+      };
+      if (learnedMinutes !== null) {
+        profile.elapsedMinutes = learnedMinutes;
+        profile.timingSourceServings = preparedSourceServings;
+        profile.timingObservedAt = finishedAt;
+      }
+      if (learnsPortion) {
+        profile.yieldUnit = yieldUnit;
+        profile.sourceUnitsPerPortion = preparedSourceServings / actualYield;
+        profile.portionSizeConfirmed = true;
+        profile.portionObservedAt = finishedAt;
+      }
       experience = {
         ...experience,
-        recipeProfiles: {
-          ...experience.recipeProfiles,
-          [session.recipeId]: {
-            ...(existing ?? newRecipeProfile(yieldUnit)),
-            elapsedMinutes: learnedMinutes,
-            timingSourceServings: preparedSourceServings,
-            timingObservedAt: finishedAt,
-          },
-        },
+        recipeProfiles: { ...experience.recipeProfiles, [session.recipeId]: profile },
       };
     }
     return withExperience(working, experience);
@@ -936,6 +944,21 @@ export const experienceEngine: ExperienceEngine = {
         : profile.timingObservedAt === null
           ? null
           : validateTimestamp(profile.timingObservedAt, 'Timing observation time');
+    // Portion provenance follows the confirmed size the same way: an edited unit or amount,
+    // or an unconfirmed size, is no longer the size that was measured.
+    const keepsPortion =
+      previous !== undefined &&
+      checked.portionSizeConfirmed &&
+      previous.yieldUnit === checked.yieldUnit &&
+      previous.sourceUnitsPerPortion === checked.sourceUnitsPerPortion;
+    checked.portionObservedAt =
+      profile.portionObservedAt === undefined
+        ? keepsPortion
+          ? (previous.portionObservedAt ?? null)
+          : null
+        : profile.portionObservedAt === null
+          ? null
+          : validateTimestamp(profile.portionObservedAt, 'Portion observation time');
     return withExperience(working, {
       ...working.experience!,
       recipeProfiles: { ...working.experience!.recipeProfiles, [recipeId]: checked },
