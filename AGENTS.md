@@ -16,10 +16,14 @@ New decisions belong in `docs/decisions/README.md` with date, status, rationale 
 
 A user-owned recipe is not a public catalog license. Review `docs/reference/provenance-and-licenses.md` before adding assets, seed content or exports to a release. Keep secrets, cookies, personal state, backups, private deck assets and raw restricted font binaries out of Git. Runtime credentials are server-only; `.env.example` is not loaded automatically.
 
+## Tracker, milestones and loops
+
+GitHub Issues on `K41R0N/meal-planner` is the project tracker. Work happens against an issue in a milestone; read `docs/operating/README.md` for the issue contract, labels, work-in-progress limit and the four loops (unit, weekly review, gate review, strategy check), and `docs/operating/milestones.md` for how milestones mirror the roadmap's stages and gates. Measure against `docs/evals/README.md`. `docs/growth/README.md` holds research and growth methods used inside Stages 2, 4 and 5; methods never add milestones or gates. Labels and milestones are defined in `.github/pm/board.json`; change them there, not by hand. The repository is public: issues and comments carry no personal data, credentials or private reference-repository content.
+
 ## Scope, checks and release
 
 Use the installed Compound Engineering guidance for scoped plans and evidence-based reviews; use Impeccable/Awwwards/Jury and Vercel guidance where relevant. Do not claim a native tool/model run that did not succeed. Retain non-obvious solved lessons only when their owning documents/code do not already preserve the reasoning.
 
 Run `pnpm docs:check`, `pnpm typecheck`, `pnpm test` and `pnpm build` for affected first-party changes. Validate portable exports with the command in `tools/recipe-import/README.md`. Do not reformat vendored tools or preserved legacy sources unnecessarily.
 
-The central repository is `K41R0N/meal-planner`. A main push can trigger Netlify. The owner's October 27 instruction explicitly authorizes pushing the complete existing source bundle to main, superseding the earlier source-integration hold. Use a normal non-force push and the documented `[skip ci]` marker; read `docs/release/source-integration.md` for the current authority. Do not activate billing, provision providers, initiate app publication, change deployment settings, run campaigns or install/host inference merely because a proposed roadmap mentions them.
+The central repository is `K41R0N/meal-planner`. A main push can trigger Netlify. The owner's October 27 instruction explicitly authorizes pushing the complete existing source bundle to main, superseding the earlier source-integration hold. Use a normal non-force push and the `[skip netlify]` marker in the last commit of the push (D014: `[skip ci]` also suppresses the GitHub Actions checks); read `docs/release/source-integration.md` for the current authority. Do not activate billing, provision providers, initiate app publication, change deployment settings, run campaigns or install/host inference merely because a proposed roadmap mentions them.

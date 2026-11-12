@@ -1,6 +1,6 @@
 # Mealbook documentation
 
-Updated October 27, 2026. Begin with [the product truth](../PRODUCT.md), [strategy](../STRATEGY.md) and [commercial roadmap](roadmap/commercial-release.md). This repository contains a working personal app and a plan for a commercial product—not a commercially released service.
+Updated October 28, 2026. Begin with [the product truth](../PRODUCT.md), [strategy](../STRATEGY.md) and [commercial roadmap](roadmap/commercial-release.md). This repository contains a working personal app and a plan for a commercial product—not a commercially released service.
 
 ## Which documents decide what?
 
@@ -8,6 +8,7 @@ Updated October 27, 2026. Begin with [the product truth](../PRODUCT.md), [strate
 |---|---|---|
 | What does the personal app actually do? | [PRODUCT.md](../PRODUCT.md) and [implementation evidence](experience/implementation-evidence.md) | Delivered core behavior; limitations explicit |
 | Who is it for and why might they pay? | [STRATEGY.md](../STRATEGY.md) | Product direction plus commercial hypotheses |
+| Why this direction, and what evidence supports it? | [Direction evidence pass](research/direction/2026-10-31-direction.md) | October 31 desk evidence; settles build direction, not price or channels |
 | What did we approve, propose or leave open? | [Decision registry](decisions/README.md) | Durable approval boundaries |
 | What is the next release milestone? | [Commercial roadmap](roadmap/commercial-release.md) | Proposed stage gates, not dates |
 | How should cards, hierarchy and interactions work? | [DESIGN.md](../DESIGN.md), [card system](reference/card-system.md), [interaction contract](experience/interaction-contract.md) | Approved cross-platform direction |
@@ -17,6 +18,8 @@ Updated October 27, 2026. Begin with [the product truth](../PRODUCT.md), [strate
 | What role could Ollaya/Laya have? | [Decision models](architecture/decision-models.md) | Optional measured experiment, no deployment |
 | How do we acquire and retain customers? | [Go-to-market](commercial/go-to-market.md) | Pilot and channels proposed, not executed |
 | Can we launch? | [Production readiness](release/production-readiness.md) | Unchecked release evidence gates |
+| How is the roadmap tracked and checked? | [Operating system](operating/README.md), [milestone map](operating/milestones.md), [evals register](evals/README.md) | Active; GitHub milestones mirror the roadmap stages |
+| How are users, positioning and growth researched inside the roadmap? | [Research and growth methods](growth/README.md), [funnel map v0](growth/funnel-map.md) | Methods for Stages 2, 4 and 5; funnel map inferred until pilot data |
 | How can users bring their own assistant? | [Agent architecture](architecture/agents/README.md), [tool contract](reference/agents/tool-contract.md), [permissions](architecture/agents/permissions-and-trust.md) | Approved design, no live MCP/account API |
 | Which clients work and how does this scale? | [Dated client/competition evidence](research/agent-integrations/README.md), [scaling](architecture/agents/scaling-and-operations.md), [future implementation plan](plans/2026-10-27-1205-feat-agent-friendly-mealbook-plan.md) | Research and proposed milestones, not tested endpoint availability |
 | Can we push source without publishing? | [Source integration](release/source-integration.md) | Explicit deployment controls and evidence |

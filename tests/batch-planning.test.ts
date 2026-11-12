@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { batchPlanning } from '../packages/meal-domain/src/batch-planner.ts';
+import { batchPlanning, withPlanningDate } from '../packages/meal-domain/src/batch-planner.ts';
+import {
+  createSnapshot,
+  executeCommand,
+} from '../packages/meal-domain/src/application-commands.ts';
 import {
   defaultFilters,
   emptyNutrition,
@@ -209,7 +213,8 @@ test('strict timing never treats missing data as zero and edits preserve immutab
   );
 });
 
-test('ready reuse uses immutable batch yield arithmetic, respects saved allocations, and protected choices survive reroll', () => {
+/** A frozen ready batch with 6 portions left and one saved use on 2026-10-27 that reserves a portion. */
+const readyReuseFixture = () => {
   const dinner = recipe('ready-dinner');
   const other = recipe('other-dinner');
   const app = state([dinner, other], { [dinner.id]: profile(), [other.id]: profile() });
@@ -298,6 +303,14 @@ test('ready reuse uses immutable batch yield arithmetic, respects saved allocati
     reuseReady: true,
     reuseOneOffs: false,
   };
+  return { app, request, dinner, other };
+};
+
+test('ready reuse uses immutable batch yield arithmetic, respects saved allocations, and protected choices survive reroll', (t) => {
+  // Saved uses reserve ready food only from today on, so pin the clock to the fixture's dates.
+  // Local noon on October 27, so the planner's local "today" is the 27th in every time zone.
+  t.mock.timers.enable({ apis: ['Date'], now: new Date(2026, 9, 27, 12).getTime() });
+  const { app, request, dinner, other } = readyReuseFixture();
   const proposed = batchPlanning.proposeWeek(app, request, 'ready-week');
   const ready = proposed.choices[0];
   assert.deepEqual(
@@ -334,6 +347,26 @@ test('ready reuse uses immutable batch yield arithmetic, respects saved allocati
     dinner.id,
     'a locked choice is preserved even if a new reroll filter would exclude it',
   );
+});
+
+test('a saved use reserves ready food through the end of the local day, not the UTC day', (t) => {
+  const previousTz = process.env.TZ;
+  t.after(() => {
+    if (previousTz === undefined) delete process.env.TZ;
+    else process.env.TZ = previousTz;
+  });
+  const readyPortions = (timeZone: string, instant: string): number => {
+    process.env.TZ = timeZone;
+    t.mock.timers.enable({ apis: ['Date'], now: Date.parse(instant) });
+    const { app, request } = readyReuseFixture();
+    const portions = batchPlanning.proposeWeek(app, request, 'boundary-week').choices[0].portions;
+    t.mock.timers.reset();
+    return portions;
+  };
+  // 23:30 on 27 October in New York is already 28 October in UTC; tonight's use still reserves.
+  assert.equal(readyPortions('America/New_York', '2026-10-28T03:30:00.000Z'), 5);
+  // 00:30 on 28 October in Tokyo is still 27 October in UTC; yesterday's use no longer reserves.
+  assert.equal(readyPortions('Asia/Tokyo', '2026-10-27T15:30:00.000Z'), 6);
 });
 
 test('integral targets are apportioned as whole portions and scheduled in people-sized repeated uses', () => {
@@ -1208,5 +1241,52 @@ test('an explicit meal swap may leave saved filters and roles, and reuses suffic
   assert.match(
     replacement.explanations.join(' '),
     /explicit choice; saved recipe roles remain unchanged/i,
+  );
+});
+
+test('ready-food reservations follow the date a command supplies, not the wall clock', (t) => {
+  // The wall clock says October 27 everywhere; the caller says it is already the 28th.
+  t.mock.timers.enable({ apis: ['Date'], now: new Date(2026, 9, 27, 12).getTime() });
+  const { app, request } = readyReuseFixture();
+  const onClock = batchPlanning.proposeWeek(app, request, 'clock-week').choices[0];
+  assert.equal(onClock.portions, 5, 'the October 27 saved use still holds one portion');
+
+  const onCaller = withPlanningDate('2026-10-28', () =>
+    batchPlanning.proposeWeek(app, request, 'caller-week'),
+  ).choices[0];
+  assert.equal(onCaller.portions, 6, 'on the 28th, the October 27 reservation is in the past');
+
+  // Full validation needs the batch's finished cooking session; the planner fixture omits it.
+  const valid = structuredClone(app);
+  const batch = valid.experience!.batches[0];
+  valid.experience!.sessions = [
+    {
+      id: batch.sessionId,
+      recipeId: batch.recipeId,
+      recipeSnapshot: batch.recipeSnapshot,
+      sourceServings: batch.preparedSourceServings,
+      stepIndex: 0,
+      checkedIngredientIds: [],
+      timers: [],
+      startedAt: '2026-10-24T23:00:00.000Z',
+      updatedAt: batch.madeAt,
+      finishedAt: batch.madeAt,
+      weekId: null,
+      choiceId: null,
+    },
+  ];
+  const viaCommand = executeCommand(createSnapshot(valid), {
+    operationId: 'op-propose',
+    command: { type: 'week.propose', weekId: 'command-week', request },
+    context: { date: '2026-10-28' },
+  });
+  const proposed = viaCommand.snapshot.state.experience!.weeks.find(
+    (week) => week.id === 'command-week',
+  )!;
+  assert.equal(proposed.choices[0].portions, 6);
+  assert.equal(
+    batchPlanning.proposeWeek(app, request, 'after').choices[0].portions,
+    5,
+    'the caller date does not leak past the command',
   );
 });
